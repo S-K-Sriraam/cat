@@ -1,0 +1,14 @@
+{
+  "name": "cat-prep-tracker",
+  "version": "1.0.0",
+  "description": "CAT Exam Preparation Tracker - Full Stack Node.js + MongoDB",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "cd backend && npm run dev",
+    "install-backend": "cd backend && npm install",
+    "setup": "cd backend && npm install && cp .env.example .env"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

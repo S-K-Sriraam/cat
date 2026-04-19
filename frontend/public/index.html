@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAT Prep Tracker — IIM Journey</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold:#C9922A;--gold-l:#F5E6C8;--gold-d:#8B6214;
+  --ink:#1A1710;--ink-m:#3D3A2F;--ink-l:#7A7667;
+  --cream:#FAF8F3;--cream-d:#F0EDE4;--white:#FFF;
+  --success:#2E7D4F;--success-bg:#E8F5EE;
+  --danger:#C0392B;--danger-bg:#FDECEA;
+  --border:#E4E0D5;
+  --quant:#1B4F72;--quant-l:#EAF2F8;
+  --verbal:#4A235A;--verbal-l:#F4ECF7;
+  --dilr:#1E4620;--dilr-l:#EAF7EB;
+  --shadow:0 2px 16px rgba(26,23,16,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;font-size:15px;line-height:1.6}
+
+/* AUTH SCREEN */
+.auth-screen{display:flex;min-height:100vh;align-items:center;justify-content:center;background:var(--ink)}
+.auth-box{background:var(--white);border-radius:18px;padding:2.4rem 2.2rem;width:400px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-logo{font-family:'Playfair Display',serif;font-size:1.8rem;color:var(--gold);text-align:center;margin-bottom:4px}
+.auth-sub{text-align:center;font-size:.83rem;color:var(--ink-l);margin-bottom:1.8rem}
+.auth-tabs{display:flex;border-bottom:2px solid var(--cream-d);margin-bottom:1.5rem}
+.auth-tab{flex:1;background:none;border:none;padding:.7rem;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;color:var(--ink-l);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
+.auth-tab.active{color:var(--gold-d);border-bottom-color:var(--gold)}
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.78rem;font-weight:600;color:var(--ink-l);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.field input,.field select{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);background:var(--white);outline:none;transition:border .2s}
+.field input:focus,.field select:focus{border-color:var(--gold)}
+.auth-btn{width:100%;padding:11px;background:var(--gold);color:var(--ink);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;margin-top:.5rem;transition:background .2s}
+.auth-btn:hover{background:var(--gold-d);color:#fff}
+.auth-err{background:var(--danger-bg);color:var(--danger);border-radius:7px;padding:8px 12px;font-size:.83rem;margin-bottom:.8rem;display:none}
+.auth-err.show{display:block}
+.auth-form{display:none}.auth-form.active{display:block}
+
+/* HEADER */
+.header{background:var(--ink);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;height:60px;border-bottom:2px solid var(--gold)}
+.header-logo{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);letter-spacing:.04em}
+.header-logo span{color:#fff;font-weight:300;font-family:'DM Sans',sans-serif;font-size:.85rem;margin-left:8px;opacity:.6}
+.header-right{display:flex;align-items:center;gap:12px}
+.streak-badge{display:flex;align-items:center;gap:6px;background:rgba(201,146,42,.15);border:1px solid rgba(201,146,42,.3);border-radius:20px;padding:4px 12px;color:var(--gold);font-size:.82rem;font-weight:500}
+.user-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;padding:5px 12px;font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif}
+.user-btn:hover{background:rgba(255,255,255,.2)}
+.header-date{color:rgba(255,255,255,.5);font-size:.78rem}
+
+/* NAV */
+.nav{background:var(--white);border-bottom:1px solid var(--border);display:flex;padding:0 2rem;overflow-x:auto}
+.nav-btn{padding:.8rem 1.2rem;border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;color:var(--ink-l);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-btn:hover{color:var(--ink)}
+.nav-btn.active{color:var(--gold-d);border-bottom-color:var(--gold)}
+
+/* MAIN */
+.main{max-width:1100px;margin:0 auto;padding:2rem}
+.section{display:none}.section.active{display:block}
+
+/* LOADER */
+.loader{display:inline-block;width:18px;height:18px;border:2px solid rgba(201,146,42,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.page-loading{text-align:center;padding:3rem;color:var(--ink-l)}
+
+/* DASHBOARD */
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.stat-card{background:var(--white);border-radius:12px;padding:1.2rem 1.4rem;border:1px solid var(--border);box-shadow:var(--shadow)}
+.stat-card .label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-l);margin-bottom:6px}
+.stat-card .value{font-family:'Playfair Display',serif;font-size:2rem;color:var(--ink)}
+.stat-card .sub{font-size:.78rem;color:var(--ink-l);margin-top:4px}
+.progress-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+.prog-card{background:var(--white);border-radius:12px;padding:1.2rem 1.4rem;border:1px solid var(--border);box-shadow:var(--shadow)}
+.prog-card .subj-name{font-weight:600;font-size:.9rem;margin-bottom:10px}
+.prog-bar-bg{background:var(--cream-d);border-radius:6px;height:8px;overflow:hidden}
+.prog-bar{height:8px;border-radius:6px;transition:width .6s}
+.prog-pct{font-size:.78rem;color:var(--ink-l);margin-top:6px}
+
+/* TODAY PANEL */
+.today-section{background:var(--white);border-radius:14px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.today-header{background:var(--ink);color:var(--gold);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;font-family:'Playfair Display',serif;font-size:1.1rem}
+.add-btn{background:var(--gold);color:var(--ink);border:none;border-radius:6px;padding:6px 14px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.today-body{padding:1.2rem 1.5rem}
+.add-form{background:var(--cream-d);border-radius:10px;padding:1.2rem;margin-top:1rem;display:none;gap:10px;flex-wrap:wrap}
+.add-form.open{display:flex}
+.add-form input,.add-form select{padding:8px 12px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.87rem;background:var(--white);color:var(--ink);outline:none}
+.add-form input:focus,.add-form select:focus{border-color:var(--gold)}
+.add-form input[type="text"]{flex:1;min-width:180px}
+.form-btn{padding:8px 18px;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:600}
+.form-btn.primary{background:var(--gold);color:var(--ink)}
+.form-btn.secondary{background:var(--white);color:var(--ink-l);border:1px solid var(--border)}
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--cream-d)}
+.task-item:last-child{border-bottom:none}
+.task-check{width:20px;height:20px;border:2px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s;background:var(--white)}
+.task-check.done{background:var(--success);border-color:var(--success)}
+.task-check.done::after{content:'✓';color:white;font-size:11px;font-weight:700}
+.task-title{font-weight:500;font-size:.92rem}
+.task-title.struck{text-decoration:line-through;color:var(--ink-l)}
+.task-meta{font-size:.75rem;color:var(--ink-l);margin-top:2px}
+.task-badge{font-size:.72rem;font-weight:600;border-radius:4px;padding:2px 8px;white-space:nowrap;align-self:flex-start;margin-top:2px}
+.badge-VARC{background:var(--verbal-l);color:var(--verbal)}
+.badge-DILR{background:var(--dilr-l);color:var(--dilr)}
+.badge-QA{background:var(--quant-l);color:var(--quant)}
+.task-del{background:none;border:none;cursor:pointer;color:var(--ink-l);font-size:1rem;padding:0 4px;opacity:.5}
+.task-del:hover{opacity:1;color:var(--danger)}
+.empty-state{text-align:center;padding:2rem;color:var(--ink-l);font-size:.9rem}
+
+/* SYLLABUS */
+.syllabus-intro{background:linear-gradient(135deg,var(--ink) 0%,var(--ink-m) 100%);color:var(--white);border-radius:14px;padding:1.8rem 2rem;margin-bottom:1.5rem;position:relative;overflow:hidden}
+.syllabus-intro::after{content:'CAT';position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-family:'Playfair Display',serif;font-size:5rem;color:rgba(201,146,42,.1);font-weight:900}
+.syllabus-intro h2{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--gold);margin-bottom:8px}
+.syllabus-intro p{color:rgba(255,255,255,.7);font-size:.88rem;max-width:560px}
+.syllabus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.syl-card{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.syl-card-head{padding:1rem 1.2rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.syl-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.syl-topic-item{display:flex;align-items:center;gap:8px;padding:5px 0;font-size:.84rem;color:var(--ink-m);border-bottom:1px solid var(--cream-d);cursor:pointer;transition:all .15s}
+.syl-topic-item:last-child{border-bottom:none}
+.syl-topic-item:hover{color:var(--gold-d)}
+.syl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.syl-topics{padding:.8rem 1.2rem 1rem}
+
+/* PLANNER */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-bottom:1.5rem}
+.day-col{background:var(--white);border-radius:10px;border:1px solid var(--border);overflow:hidden}
+.day-col-head{background:var(--cream-d);padding:8px 6px;text-align:center;font-size:.75rem;font-weight:600;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em}
+.day-col-head.today-head{background:var(--gold);color:var(--ink)}
+.day-num{font-size:1.1rem;font-weight:700;color:var(--ink)}
+.day-tasks{padding:6px;min-height:80px}
+.day-pill{font-size:.7rem;border-radius:4px;padding:3px 6px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.day-add{width:100%;background:none;border:none;border-top:1px solid var(--cream-d);color:var(--ink-l);font-size:.75rem;padding:5px;cursor:pointer}
+.day-add:hover{color:var(--gold-d);background:var(--cream-d)}
+
+/* PROGRESS */
+.topic-prog-list{background:var(--white);border-radius:12px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.topic-prog-row{display:flex;align-items:center;gap:12px;padding:10px 1.2rem;border-bottom:1px solid var(--cream-d)}
+.topic-prog-row:last-child{border-bottom:none}
+.topic-prog-name{width:220px;font-size:.87rem;font-weight:500}
+.topic-prog-bar-bg{flex:1;background:var(--cream-d);border-radius:4px;height:7px}
+.topic-prog-bar{height:7px;border-radius:4px;transition:width .5s}
+.topic-prog-pct{width:40px;text-align:right;font-size:.78rem;font-weight:600;color:var(--ink-l)}
+.topic-prog-edit{background:none;border:1px solid var(--border);border-radius:5px;font-size:.72rem;padding:2px 8px;cursor:pointer;white-space:nowrap}
+.chip{display:inline-block;font-size:.72rem;font-weight:600;border-radius:4px;padding:2px 8px}
+
+/* MOCKS */
+.mock-add-btn{background:var(--gold);color:var(--ink);border:none;border-radius:8px;padding:10px 22px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:1rem}
+.mock-log{background:var(--white);border-radius:12px;border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.mock-row{display:grid;grid-template-columns:100px 1fr 80px 80px 80px 90px auto;gap:10px;align-items:center;padding:10px 1.2rem;border-bottom:1px solid var(--cream-d);font-size:.85rem}
+.mock-row:last-child{border-bottom:none}
+.mock-row.header{background:var(--cream-d);font-weight:600;font-size:.78rem;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em}
+.score-tag{background:var(--cream-d);border-radius:5px;padding:2px 8px;font-weight:600;font-size:.82rem;text-align:center}
+.mock-del{background:none;border:none;color:var(--ink-l);cursor:pointer;font-size:1rem}
+.mock-del:hover{color:var(--danger)}
+
+.daily-mock-panel{background:var(--cream-d);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.4rem;margin-bottom:1rem}
+.daily-mock-panel .panel-header{font-weight:700;color:var(--ink);margin-bottom:.85rem}
+.daily-mock-grid{display:grid;gap:.85rem}
+.daily-mock-question{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:auto auto;gap:10px;align-items:center}
+.daily-mock-question .q-label{font-size:.75rem;font-weight:700;color:var(--ink-l);text-transform:uppercase;letter-spacing:.06em}
+.daily-mock-question .q-text{font-size:.9rem;line-height:1.4;color:var(--ink)}
+.daily-mock-question .q-subject{background:var(--gold-l);color:var(--gold-d);font-size:.72rem;font-weight:700;border-radius:999px;padding:4px 10px;white-space:nowrap;justify-self:end}
+.show-answer-btn{background:var(--gold);color:var(--ink);border:none;border-radius:6px;padding:4px 8px;font-size:.7rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px}
+.show-answer-btn:hover{background:var(--gold-d)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--white);border-radius:14px;padding:1.8rem;width:440px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:1.2rem}
+.field-row{margin-bottom:1rem}
+.field-label{font-size:.8rem;font-weight:600;color:var(--ink-l);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;display:block}
+.field-input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--ink);background:var(--white);outline:none}
+.field-input:focus{border-color:var(--gold)}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:1.4rem}
+.btn{padding:9px 20px;border-radius:7px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;font-size:.88rem}
+.btn-primary{background:var(--gold);color:var(--ink)}
+.btn-cancel{background:var(--cream-d);color:var(--ink-m)}
+.section-title{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:1.2rem}
+.tip{background:#FFF9E6;border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.83rem;color:var(--ink-m);margin-bottom:1.2rem}
+.planner-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:8px}
+.week-nav{display:flex;align-items:center;gap:10px}
+.week-nav button{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;font-size:.85rem}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:var(--gold);padding:12px 20px;border-radius:10px;font-size:.87rem;z-index:999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  .dash-grid,.progress-cards{grid-template-columns:1fr 1fr}
+  .syllabus-grid{grid-template-columns:1fr}
+  .week-grid{grid-template-columns:repeat(4,1fr)}
+  .mock-row{grid-template-columns:80px 1fr 60px 60px}
+  .mock-row > :nth-child(5),.mock-row > :nth-child(6){display:none}
+  .main{padding:1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ AUTH SCREEN ═══ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">CAT Prep</div>
+    <div class="auth-sub">Your IIM Journey Starts Here</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+
+    <!-- LOGIN -->
+    <div class="auth-form active" id="login-form">
+      <div class="field"><label>Email</label><input type="email" id="l-email" placeholder="you@email.com" /></div>
+      <div class="field"><label>Password</label><input type="password" id="l-pass" placeholder="••••••••" /></div>
+      <button class="auth-btn" onclick="doLogin()">Login to Dashboard</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="auth-form" id="register-form">
+      <div class="field"><label>Full Name</label><input type="text" id="r-name" placeholder="Your Name" /></div>
+      <div class="field"><label>Email</label><input type="email" id="r-email" placeholder="you@email.com" /></div>
+      <div class="field"><label>Password</label><input type="password" id="r-pass" placeholder="Min. 6 characters" /></div>
+      <div class="field"><label>Target Percentile</label>
+        <select id="r-perc">
+          <option value="99.5">99.5+</option><option value="99" selected>99+</option>
+          <option value="98">98+</option><option value="95">95+</option><option value="90">90+</option>
+        </select>
+      </div>
+      <div class="field"><label>CAT Exam Date</label><input type="date" id="r-examdate" /></div>
+      <button class="auth-btn" onclick="doRegister()">Create Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app" style="display:none">
+  <header class="header">
+    <div class="header-logo">CAT Prep <span>IIM Tracker</span></div>
+    <div class="header-right">
+      <div class="streak-badge" id="streak-badge">🔥 0 day streak</div>
+      <div class="header-date" id="header-date"></div>
+      <button class="user-btn" id="user-name-btn" onclick="toggleUserMenu()">Account ▾</button>
+    </div>
+  </header>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+    <button class="nav-btn" onclick="showSection('planner')">Daily Planner</button>
+    <button class="nav-btn" onclick="showSection('syllabus')">Syllabus</button>
+    <button class="nav-btn" onclick="showSection('progress')">Topic Progress</button>
+    <button class="nav-btn" onclick="showSection('mocks')">Mock Tests</button>
+    <button class="nav-btn" onclick="logout()" style="margin-left:auto;color:var(--danger)">Logout</button>
+  </nav>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="section active" id="dashboard">
+      <div class="dash-grid">
+        <div class="stat-card"><div class="label">Tasks Today</div><div class="value" id="d-today">–</div><div class="sub" id="d-done-sub">loading…</div></div>
+        <div class="stat-card"><div class="label">Study Hours</div><div class="value" id="d-hours">–</div><div class="sub">total hours logged</div></div>
+        <div class="stat-card"><div class="label">Mock Tests</div><div class="value" id="d-mocks">–</div><div class="sub" id="d-best">Best: –</div></div>
+      </div>
+      <div class="today-section">
+        <div class="today-header">
+          <span>Today's Study Plan</span>
+          <button class="add-btn" onclick="openTodayForm()">+ Add Task</button>
+        </div>
+        <div class="today-body">
+          <div class="add-form" id="today-form">
+            <input type="text" id="t-title" placeholder="Topic or task name…" />
+            <select id="t-subj"><option value="VARC">VARC</option><option value="DILR">DILR</option><option value="QA">QA</option></select>
+            <input type="number" id="t-hours" placeholder="Hrs" min="0.5" max="8" step="0.5" style="width:70px" />
+            <button class="form-btn primary" onclick="addTodayTask()">Add</button>
+            <button class="form-btn secondary" onclick="closeTodayForm()">Cancel</button>
+          </div>
+          <div id="today-list"><div class="page-loading"><span class="loader"></span></div></div>
+        </div>
+      </div>
+      <div class="progress-cards" id="subj-progress"></div>
+    </section>
+
+    <!-- PLANNER -->
+    <section class="section" id="planner">
+      <div class="planner-head">
+        <h2 class="section-title" style="margin-bottom:0">Weekly Planner</h2>
+        <div class="week-nav">
+          <button onclick="changeWeek(-1)">‹</button>
+          <span id="week-label" style="font-weight:500;font-size:.9rem"></span>
+          <button onclick="changeWeek(1)">›</button>
+        </div>
+      </div>
+      <div class="tip">Click "+ Add" on any day to plan study sessions. Today is highlighted in gold.</div>
+      <div class="week-grid" id="week-grid"></div>
+    </section>
+
+    <!-- SYLLABUS -->
+    <section class="section" id="syllabus">
+      <div class="syllabus-intro">
+        <h2>CAT 2026 Full Syllabus</h2>
+        <p>3 sections: VARC (26 Qs · 72 marks), DILR (20 Qs · 60 marks), QA (22 Qs · 76 marks). Each section has a 40‑min time limit. Click any topic to add it to today's plan.</p>
+      </div>
+      <div class="syllabus-grid" id="syllabus-grid"></div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="section" id="progress">
+      <h2 class="section-title">Topic-wise Progress</h2>
+      <div class="tip">Update your completion % for each topic. Completed topics appear struck-through in the syllabus view.</div>
+      <div class="topic-prog-list" id="prog-list"><div class="page-loading"><span class="loader"></span></div></div>
+    </section>
+
+    <!-- MOCKS -->
+    <section class="section" id="mocks">
+      <h2 class="section-title">Mock Test Log</h2>
+      <button class="mock-add-btn" onclick="openMockModal()">+ Log Mock Test</button>
+      <div class="daily-mock-panel">
+        <div class="panel-header">Today’s daily mock drill</div>
+        <div class="daily-mock-grid" id="daily-mock-list"></div>
+      </div>
+      <div class="mock-log">
+        <div class="mock-row header">
+          <span>Date</span><span>Name</span><span>VARC</span><span>DILR</span><span>QA</span><span>Total</span><span></span>
+        </div>
+        <div id="mock-body"><div class="page-loading"><span class="loader"></span></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- MOCK MODAL -->
+<div class="modal-overlay" id="mock-modal">
+  <div class="modal">
+    <h3>Log Mock Test</h3>
+    <div class="field-row"><label class="field-label">Date</label><input class="field-input" type="date" id="m-date" /></div>
+    <div class="field-row"><label class="field-label">Test Name</label><input class="field-input" type="text" id="m-name" placeholder="e.g. IMS SimCAT 3" /></div>
+    <div class="field-row"><label class="field-label">Attempted By</label>
+      <select class="field-input" id="m-by">
+        <option value="IMS">IMS</option><option value="TIME">TIME</option><option value="CL">Career Launcher</option>
+        <option value="MBAGuru">MBA Guru</option><option value="Official">CAT Official</option><option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="field-row"><label class="field-label">VARC Score (out of 72)</label><input class="field-input" type="number" id="m-varc" min="0" max="72" /></div>
+    <div class="field-row"><label class="field-label">DILR Score (out of 60)</label><input class="field-input" type="number" id="m-dilr" min="0" max="60" /></div>
+    <div class="field-row"><label class="field-label">QA Score (out of 76)</label><input class="field-input" type="number" id="m-qa" min="0" max="76" /></div>
+    <div class="field-row"><label class="field-label">Overall Percentile (if known)</label><input class="field-input" type="number" id="m-pct" min="0" max="100" step="0.01" /></div>
+    <div class="field-row"><label class="field-label">Notes</label><input class="field-input" type="text" id="m-notes" placeholder="Weak areas, observations…" /></div>
+    <div class="modal-btns">
+      <button class="btn btn-cancel" onclick="closeMockModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMock()">Save Result</button>
+    </div>
+  </div>
+</div>
+
+<!-- DAY MODAL -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal">
+    <h3 id="day-modal-title">Plan Session</h3>
+    <div class="field-row"><label class="field-label">Topic / Task</label><input class="field-input" type="text" id="dy-title" placeholder="e.g. Quadratic Equations" /></div>
+    <div class="field-row"><label class="field-label">Subject</label>
+      <select class="field-input" id="dy-subj">
+        <option value="QA">Quantitative Aptitude</option>
+        <option value="VARC">Verbal Ability & RC</option>
+        <option value="DILR">Data Interpretation & LR</option>
+      </select>
+    </div>
+    <div class="field-row"><label class="field-label">Hours</label><input class="field-input" type="number" id="dy-hrs" min="0.5" max="8" step="0.5" placeholder="1" /></div>
+    <div class="modal-btns">
+      <button class="btn btn-cancel" onclick="closeDayModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDayTask()">Add Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── CONFIG ───
+// Change this to your deployed backend URL in production
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:5000/api'
+  : '/api'; // same-origin when served from Express
+
+// ─── STATE ───
+let token = localStorage.getItem('cat_token') || '';
+let currentUser = null;
+let weekOffset = 0;
+let activeDayDate = null;
+let allProgress = {};
+let allTasks = [];
+let allMocks = [];
+
+const DAILY_MOCK_QUESTION_BANK = [
+  // VARC - Reading Comprehension
+  { subject: 'VARC', text: 'According to the passage, what is the primary reason for the decline in bee populations?', answer: 'Look for the main cause mentioned in the passage, such as habitat loss, pesticides, or climate change.' },
+  { subject: 'VARC', text: 'Which of the following can be inferred about the author\'s view on technology?', answer: 'Analyze the author\'s tone and specific statements about technology throughout the passage.' },
+  { subject: 'VARC', text: 'The passage suggests that the most effective solution to the problem is:', answer: 'Identify the solution that the author presents as most viable or strongly advocates for.' },
+
+  // VARC - Para Jumbles
+  { subject: 'VARC', text: 'Arrange the following sentences to form a logical paragraph: 1. However, this method has its limitations. 2. Solar energy is becoming increasingly popular. 3. It depends on weather conditions. 4. Many countries are investing in solar power plants.', answer: 'Logical order: 2, 4, 1, 3 (introduction, development, contrast, explanation).' },
+  { subject: 'VARC', text: 'Which sentence would be the best opening for this paragraph?', answer: 'Choose the sentence that introduces the main topic or provides necessary context.' },
+
+  // VARC - Critical Reasoning
+  { subject: 'VARC', text: 'Which of the following, if true, would most weaken the argument?', answer: 'Look for information that contradicts the conclusion or shows the premise is flawed.' },
+  { subject: 'VARC', text: 'The argument assumes that:', answer: 'Identify the unstated assumption that the argument depends on.' },
+
+  // VARC - Grammar & Vocabulary
+  { subject: 'VARC', text: 'Choose the word that best fits the blank: The scientist\'s theory was _____ by new evidence.', answer: 'Options would include: supported, refuted, enhanced, etc. Choose "refuted" or "disproved".' },
+  { subject: 'VARC', text: 'Identify the grammatical error in the sentence.', answer: 'Look for subject-verb agreement, tense consistency, or other grammatical issues.' },
+
+  // DILR - Data Interpretation
+  { subject: 'DILR', text: 'According to the bar graph, what was the percentage increase in sales from 2019 to 2020?', answer: 'Calculate: ((2020 sales - 2019 sales) / 2019 sales) × 100' },
+  { subject: 'DILR', text: 'In the pie chart, which category represents the largest share?', answer: 'Compare the percentages or angles of different sectors.' },
+  { subject: 'DILR', text: 'From the table, what is the ratio of male to female employees in department A?', answer: 'Divide the number of males by females in department A.' },
+
+  // DILR - Logical Reasoning - Arrangements
+  { subject: 'DILR', text: 'Six friends are sitting in a row. A is not next to B. C is between D and E. Who is at the ends?', answer: 'Use the given conditions to determine positions. Possible arrangement: F, A, D, C, E, B' },
+  { subject: 'DILR', text: 'In a tournament, team A beat team B, team B beat team C. If team A plays team C, who wins?', answer: 'Cannot determine from given information - transitive property doesn\'t apply to all sports.' },
+
+  // DILR - Blood Relations
+  { subject: 'DILR', text: 'If A is B\'s father\'s brother, how is B related to A\'s son?', answer: 'A is B\'s uncle. A\'s son is B\'s cousin.' },
+  { subject: 'DILR', text: 'Pointing to a person, X says "He is the son of my grandfather\'s son". How is X related to that person?', answer: 'The person is X\'s brother or sister.' },
+
+  // QA - Arithmetic
+  { subject: 'QA', text: 'A man buys a shirt for ₹800 and sells it for ₹1000. What is his profit percentage?', answer: 'Profit = 1000 - 800 = 200. Profit % = (200/800) × 100 = 25%' },
+  { subject: 'QA', text: 'If the ratio of speeds of A and B is 3:4, and B covers 120 km in 3 hours, what is A\'s speed?', answer: 'B\'s speed = 120/3 = 40 km/h. A\'s speed = (3/4) × 40 = 30 km/h' },
+  { subject: 'QA', text: 'A sum becomes 3 times in 8 years at simple interest. What is the rate of interest?', answer: 'Let P be principal, then 3P = P + (P × r × 8)/100. So 2P = (8Pr)/100, r = (2P × 100)/(8P) = 25%' },
+
+  // QA - Algebra
+  { subject: 'QA', text: 'Solve: x² - 5x + 6 = 0', answer: 'Factor: (x-2)(x-3) = 0, so x = 2 or 3' },
+  { subject: 'QA', text: 'If log₁₀(x) = 2, what is x?', answer: 'x = 10² = 100' },
+  { subject: 'QA', text: 'Find the roots of x² + 4x - 5 = 0', answer: 'Discriminant = 16 + 20 = 36. Roots = [-4 ± 6]/2 = 1 or -5' },
+
+  // QA - Geometry
+  { subject: 'QA', text: 'What is the area of a triangle with base 10 cm and height 8 cm?', answer: 'Area = (1/2) × base × height = (1/2) × 10 × 8 = 40 cm²' },
+  { subject: 'QA', text: 'In a circle of radius 7 cm, what is the circumference?', answer: 'Circumference = 2πr = 2 × 22/7 × 7 = 44 cm' },
+  { subject: 'QA', text: 'The angles of a triangle are in ratio 2:3:4. What is the largest angle?', answer: 'Sum = 180°, so angles = 40°, 60°, 80°. Largest is 80°' },
+
+  // QA - Modern Math
+  { subject: 'QA', text: 'How many ways can 5 books be arranged on a shelf?', answer: '5! = 5 × 4 × 3 × 2 × 1 = 120 ways' },
+  { subject: 'QA', text: 'What is the probability of rolling a 6 on a fair die?', answer: '1 out of 6 possibilities = 1/6' },
+  { subject: 'QA', text: 'Find the 5th term of AP: 2, 5, 8, 11, ...', answer: 'Common difference = 3. 5th term = 2 + 4×3 = 14' },
+
+  // DILR - Games & Tournaments
+  { subject: 'DILR', text: 'In a round-robin tournament, each of 4 teams plays every other team once. How many matches are played?', answer: 'Number of matches = n(n-1)/2 = 4×3/2 = 6 matches' },
+  { subject: 'DILR', text: 'Team A has won 3 matches, drawn 1, lost 1. How many points does it have? (Win=2, Draw=1)', answer: 'Points = 3×2 + 1×1 + 1×0 = 7 points' },
+
+  // VARC - Sentence Completion
+  { subject: 'VARC', text: 'The politician\'s speech was eloquent but _____; it failed to address the real issues.', answer: 'Options would include: persuasive, superficial, inspiring, etc. Choose "superficial" or "empty".' },
+  { subject: 'VARC', text: 'Despite the _____, the team managed to win the championship.', answer: 'Options: odds, predictions, expectations, etc. Choose "odds" or "predictions".' }
+];
+
+function seedFromString(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash) || 1;
+}
+
+function shuffleWithSeed(array, seed) {
+  const result = array.slice();
+  let random = seed;
+  const next = () => {
+    random = (random * 16807) % 2147483647;
+    return (random - 1) / 2147483646;
+  };
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function getDailyMockQuestions() {
+  const dateKey = today();
+  const pool = shuffleWithSeed(DAILY_MOCK_QUESTION_BANK, seedFromString(dateKey));
+  return pool.slice(0, 5);
+}
+
+function renderDailyMockQuestions() {
+  const list = document.getElementById('daily-mock-list');
+  if (!list) return;
+  const questions = getDailyMockQuestions();
+  list.innerHTML = questions.map((q, index) => `
+    <div class="daily-mock-question">
+      <div>
+        <div class="q-label">Q${index + 1}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-answer" id="answer-${index}" style="display:none;margin-top:8px;padding:8px;background:var(--cream-d);border-radius:6px;font-size:.85rem;color:var(--ink-m);border-left:3px solid var(--gold)">
+          <strong>Answer:</strong> ${q.answer}
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="q-subject">${q.subject}</div>
+        <button class="show-answer-btn" onclick="toggleAnswer(${index})">Show Answer</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleAnswer(index) {
+  const answerEl = document.getElementById(`answer-${index}`);
+  const btn = answerEl.previousElementSibling.querySelector('.show-answer-btn');
+  if (answerEl.style.display === 'none') {
+    answerEl.style.display = 'block';
+    btn.textContent = 'Hide Answer';
+  } else {
+    answerEl.style.display = 'none';
+    btn.textContent = 'Show Answer';
+  }
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+const fmtDate = d => new Date(d + 'T00:00:00').toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+// ─── SYLLABUS DATA ───
+const SYLLABUS = [
+  { key: 'VARC', name: 'Verbal Ability & Reading Comprehension', weight: '24 Qs · 72 marks', color: '#4A235A', bg: '#F4ECF7', dot: '#9B59B6', icon: '📖',
+    topics: [
+      'Reading Comprehension (4-5 passages)',
+      'Para Jumbles (Odd One Out)',
+      'Para Completion',
+      'Sentence Exclusion',
+      'Sentence Completion',
+      'Critical Reasoning',
+      'Fact Inference Judgment',
+      'Grammar & Usage',
+      'Vocabulary (Synonyms, Antonyms, Analogies)',
+      'Fill in the Blanks (Double Blanks)',
+      'Summary Writing',
+      'Verbal Logic',
+      'Idioms & Phrases'
+    ] },
+  { key: 'DILR', name: 'Data Interpretation & Logical Reasoning', weight: '20 Qs · 60 marks', color: '#1E4620', bg: '#EAF7EB', dot: '#27AE60', icon: '📊',
+    topics: [
+      'Data Interpretation Sets (Tables, Bar Charts, Line Graphs, Pie Charts)',
+      'Caselets (Text-based DI)',
+      'Data Sufficiency',
+      'Logical Reasoning (Arrangements, Puzzles)',
+      'Seating Arrangements (Circular, Linear)',
+      'Blood Relations',
+      'Games & Tournaments',
+      'Venn Diagrams',
+      'Direction Sense',
+      'Syllogisms',
+      'Assumptions & Conclusions',
+      'Statements & Arguments',
+      'Binary Logic',
+      'Routes & Networks',
+      'Scheduling Problems'
+    ] },
+  { key: 'QA', name: 'Quantitative Aptitude', weight: '22 Qs · 66 marks', color: '#1B4F72', bg: '#EAF2F8', dot: '#2E86C1', icon: '🔢',
+    topics: [
+      'Number System (Divisibility, LCM, HCF)',
+      'Arithmetic (Percentages, Profit & Loss, SI/CI)',
+      'Time, Speed & Distance',
+      'Time & Work',
+      'Ratios & Proportions',
+      'Mixtures & Alligations',
+      'Averages',
+      'Algebra (Linear Equations, Quadratic Equations)',
+      'Functions & Graphs',
+      'Inequalities',
+      'Logarithms',
+      'Progressions (AP, GP)',
+      'Permutation & Combination',
+      'Probability',
+      'Geometry (Lines, Angles, Triangles, Quadrilaterals)',
+      'Circles & Mensuration',
+      'Coordinate Geometry',
+      'Trigonometry',
+      'Set Theory'
+    ] }
+];
+
+// ─── API HELPERS ───
+async function api(method, path, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function showToast(msg, isErr = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? 'var(--danger)' : 'var(--ink)';
+  t.style.color = isErr ? '#fff' : 'var(--gold)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── AUTH ───
+function switchAuthTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach((b, i) => b.classList.toggle('active', (i === 0) === (tab === 'login')));
+  document.getElementById('login-form').classList.toggle('active', tab === 'login');
+  document.getElementById('register-form').classList.toggle('active', tab === 'register');
+  document.getElementById('auth-err').classList.remove('show');
+}
+
+function showAuthErr(msg) {
+  const el = document.getElementById('auth-err');
+  el.textContent = msg; el.classList.add('show');
+}
+
+async function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const password = document.getElementById('l-pass').value;
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('cat_token', token);
+    initApp();
+  } catch (e) { showAuthErr(e.message); }
+}
+
+async function doRegister() {
+  const name = document.getElementById('r-name').value.trim();
+  const email = document.getElementById('r-email').value.trim();
+  const password = document.getElementById('r-pass').value;
+  const targetPercentile = parseFloat(document.getElementById('r-perc').value);
+  const examDate = document.getElementById('r-examdate').value;
+  try {
+    const data = await api('POST', '/auth/register', { name, email, password, targetPercentile, examDate });
+    token = data.token; currentUser = data.user;
+    localStorage.setItem('cat_token', token);
+    initApp();
+  } catch (e) { showAuthErr(e.message); }
+}
+
+async function initApp() {
+  if (!token) return;
+  try {
+    if (!currentUser) {
+      const data = await api('GET', '/auth/me');
+      currentUser = data.user;
+    }
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-name-btn').textContent = currentUser.name.split(' ')[0] + ' ▾';
+
+    const now = new Date();
+    document.getElementById('header-date').textContent = now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'long' });
+
+    // Load everything in parallel
+    await Promise.all([loadDashboard(), loadProgress()]);
+    renderSyllabus();
+  } catch (e) {
+    localStorage.removeItem('cat_token');
+    token = '';
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+}
+
+function logout() {
+  token = ''; currentUser = null;
+  localStorage.removeItem('cat_token');
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+function toggleUserMenu() {
+  // Simple — just show name
+  showToast('Logged in as ' + (currentUser?.email || ''));
+}
+
+// ─── NAV ───
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = ['dashboard','planner','syllabus','progress','mocks'].indexOf(id);
+  if (idx >= 0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  if (id === 'dashboard') loadDashboard();
+  if (id === 'planner') loadPlanner();
+  if (id === 'progress') renderProgress();
+  if (id === 'mocks') {
+    loadMocks();
+    renderDailyMockQuestions();
+  }
+  if (id === 'syllabus') renderSyllabus();
+}
+
+// ─── DASHBOARD ───
+async function loadDashboard() {
+  try {
+    const [statsData, mocksData, todayTasksData] = await Promise.all([
+      api('GET', '/tasks/stats/summary'),
+      api('GET', '/mocks/stats/trend'),
+      api('GET', '/tasks?date=' + today())
+    ]);
+
+    allTasks = todayTasksData.tasks || [];
+    document.getElementById('d-today').textContent = statsData.todayTasks;
+    document.getElementById('d-done-sub').textContent = `${statsData.todayDone} completed`;
+    document.getElementById('d-hours').textContent = statsData.totalHours.toFixed(1);
+    document.getElementById('d-mocks').textContent = mocksData.count;
+    document.getElementById('d-best').textContent = mocksData.best ? `Best: ${mocksData.best}/208` : 'Best: –';
+    document.getElementById('streak-badge').textContent = `🔥 ${statsData.streak} day streak`;
+
+    renderTodayList();
+    renderSubjectProgress(statsData.subjectBreakdown || []);
+  } catch (e) { showToast('Failed to load dashboard', true); }
+}
+
+function renderTodayList() {
+  const el = document.getElementById('today-list');
+  if (!allTasks.length) { el.innerHTML = '<div class="empty-state">No tasks yet. Add your first study task for today!</div>'; return; }
+  el.innerHTML = allTasks.map(t => `
+    <div class="task-item">
+      <div class="task-check ${t.done ? 'done' : ''}" onclick="toggleTask('${t._id}',${!t.done})"></div>
+      <div style="flex:1">
+        <div class="task-title ${t.done ? 'struck' : ''}">${t.title}</div>
+        <div class="task-meta">${t.hours || 1}h · ${t.subject}</div>
+      </div>
+      <span class="task-badge badge-${t.subject}">${t.subject}</span>
+      <button class="task-del" onclick="deleteTask('${t._id}')">✕</button>
+    </div>`).join('');
+}
+
+function renderSubjectProgress(breakdown) {
+  const el = document.getElementById('subj-progress');
+  el.innerHTML = SYLLABUS.map(s => {
+    const topics = s.topics;
+    const done = topics.filter(tp => (allProgress[s.key + '_' + tp] || 0) >= 100).length;
+    const pct = Math.round(done / topics.length * 100);
+    return `<div class="prog-card">
+      <div class="subj-name" style="color:${s.color}">${s.key} — ${s.name.split(' ').slice(0, 2).join(' ')}</div>
+      <div class="prog-bar-bg"><div class="prog-bar" style="width:${pct}%;background:${s.dot}"></div></div>
+      <div class="prog-pct">${done}/${topics.length} topics · ${pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+function openTodayForm() { document.getElementById('today-form').classList.add('open'); document.getElementById('t-title').focus(); }
+function closeTodayForm() { document.getElementById('today-form').classList.remove('open'); }
+
+async function addTodayTask() {
+  const title = document.getElementById('t-title').value.trim();
+  if (!title) return;
+  try {
+    const data = await api('POST', '/tasks', {
+      title, subject: document.getElementById('t-subj').value,
+      hours: parseFloat(document.getElementById('t-hours').value) || 1, date: today()
+    });
+    allTasks.unshift(data.task);
+    document.getElementById('t-title').value = '';
+    document.getElementById('t-hours').value = '';
+    renderTodayList();
+    showToast('Task added!');
+  } catch (e) { showToast(e.message, true); }
+}
+
+async function toggleTask(id, done) {
+  try {
+    const data = await api('PATCH', '/tasks/' + id, { done });
+    const idx = allTasks.findIndex(t => t._id === id);
+    if (idx >= 0) allTasks[idx] = data.task;
+    renderTodayList();
+  } catch (e) { showToast(e.message, true); }
+}
+
+async function deleteTask(id) {
+  try {
+    await api('DELETE', '/tasks/' + id);
+    allTasks = allTasks.filter(t => t._id !== id);
+    renderTodayList();
+    showToast('Task removed');
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ─── PLANNER ───
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function weekDates(offset) {
+  const now = new Date(), day = now.getDay();
+  const mon = new Date(now);
+  mon.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + offset * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(mon); d.setDate(mon.getDate() + i);
+    return d.toISOString().slice(0, 10);
+  });
+}
+
+async function loadPlanner() {
+  const dates = weekDates(weekOffset);
+  document.getElementById('week-label').textContent = fmtDate(dates[0]) + ' – ' + fmtDate(dates[6]);
+  try {
+    const data = await api('GET', `/tasks?from=${dates[0]}&to=${dates[6]}`);
+    const tasks = data.tasks || [];
+    const t = today();
+    document.getElementById('week-grid').innerHTML = dates.map((d, i) => {
+      const dayTasks = tasks.filter(x => x.date === d);
+      const pills = dayTasks.slice(0, 4).map(tk => {
+        const s = SYLLABUS.find(s => s.key === tk.subject) || { bg: '#eee', color: '#333' };
+        return `<div class="day-pill ${tk.done ? 'struck' : ''}" style="background:${s.bg};color:${s.color}">${tk.title.slice(0, 18)}</div>`;
+      }).join('');
+      const more = dayTasks.length > 4 ? `<div style="font-size:.7rem;color:var(--ink-l);padding:0 6px">+${dayTasks.length - 4} more</div>` : '';
+      return `<div class="day-col">
+        <div class="day-col-head ${d === t ? 'today-head' : ''}">
+          <div>${DAYS[i]}</div>
+          <div class="day-num">${new Date(d + 'T00:00:00').getDate()}</div>
+        </div>
+        <div class="day-tasks">${pills}${more}</div>
+        <button class="day-add" onclick="openDayModal('${d}')">+ Add</button>
+      </div>`;
+    }).join('');
+  } catch (e) { showToast('Failed to load planner', true); }
+}
+
+function changeWeek(dir) { weekOffset += dir; loadPlanner(); }
+function openDayModal(d) { activeDayDate = d; document.getElementById('day-modal-title').textContent = 'Plan for ' + fmtDate(d); document.getElementById('day-modal').classList.add('open'); document.getElementById('dy-title').focus(); }
+function closeDayModal() { document.getElementById('day-modal').classList.remove('open'); }
+
+async function saveDayTask() {
+  const title = document.getElementById('dy-title').value.trim();
+  if (!title || !activeDayDate) return;
+  try {
+    await api('POST', '/tasks', {
+      title, subject: document.getElementById('dy-subj').value,
+      hours: parseFloat(document.getElementById('dy-hrs').value) || 1, date: activeDayDate
+    });
+    document.getElementById('dy-title').value = '';
+    document.getElementById('dy-hrs').value = '';
+    closeDayModal();
+    loadPlanner();
+    if (activeDayDate === today()) loadDashboard();
+    showToast('Session added to planner!');
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ─── SYLLABUS ───
+function renderSyllabus() {
+  document.getElementById('syllabus-grid').innerHTML = SYLLABUS.map(s =>
+    `<div class="syl-card">
+      <div class="syl-card-head">
+        <div class="syl-icon" style="background:${s.bg}">${s.icon}</div>
+        <div>
+          <h3 style="color:${s.color};font-family:'Playfair Display',serif">${s.key}</h3>
+          <div style="font-size:.75rem;color:${s.color};opacity:.8">${s.name}</div>
+          <div style="font-size:.72rem;color:var(--ink-l)">${s.weight}</div>
+        </div>
+      </div>
+      <div class="syl-topics">
+        ${s.topics.map(tp => {
+          const k = s.key + '_' + tp;
+          const pct = allProgress[k] || 0;
+          return `<div class="syl-topic-item" onclick="quickAddTopic('${s.key}','${tp.replace(/'/g, "\\'")}')">
+            <div class="syl-dot" style="background:${pct >= 100 ? s.dot : '#DDD'}"></div>
+            <span style="${pct >= 100 ? 'text-decoration:line-through;opacity:.5' : ''}">${tp}</span>
+            ${pct > 0 && pct < 100 ? `<span style="margin-left:auto;font-size:.7rem;color:${s.dot}">${pct}%</span>` : ''}
+            ${pct === 0 ? '<span style="margin-left:auto;font-size:.7rem;color:#CCC">+ Plan</span>' : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`
+  ).join('');
+}
+
+async function quickAddTopic(subject, topic) {
+  try {
+    await api('POST', '/tasks', { title: topic, subject, hours: 1, date: today() });
+    showToast(`"${topic}" added to today's plan!`);
+    allTasks = (await api('GET', '/tasks?date=' + today())).tasks || [];
+    renderTodayList();
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ─── PROGRESS ───
+async function loadProgress() {
+  try {
+    const data = await api('GET', '/progress');
+    allProgress = {};
+    (data.progress || []).forEach(p => { allProgress[p.topicKey] = p.percentage; });
+  } catch (e) { /* ignore */ }
+}
+
+function renderProgress() {
+  const rows = SYLLABUS.flatMap(s => s.topics.map(tp => {
+    const key = s.key + '_' + tp;
+    const pct = allProgress[key] || 0;
+    return `<div class="topic-prog-row">
+      <div class="topic-prog-name">
+        <span class="chip" style="background:${s.bg};color:${s.color}">${s.key}</span>
+        <span style="margin-left:8px;font-size:.84rem">${tp}</span>
+      </div>
+      <div class="topic-prog-bar-bg">
+        <div class="topic-prog-bar" style="width:${pct}%;background:${s.dot}"></div>
+      </div>
+      <div class="topic-prog-pct">${pct}%</div>
+      <button class="topic-prog-edit" onclick="editProgress('${key}','${encodeURIComponent(s.key)}','${encodeURIComponent(tp)}','${s.dot}')">Edit</button>
+    </div>`;
+  }));
+  document.getElementById('prog-list').innerHTML = rows.join('');
+}
+
+async function editProgress(key, subjectEnc, topicEnc, color) {
+  const subject = decodeURIComponent(subjectEnc);
+  const topicName = decodeURIComponent(topicEnc);
+  const cur = allProgress[key] || 0;
+  const val = prompt(`Completion % for "${topicName}" (0–100):`, cur);
+  if (val === null) return;
+  const pct = Math.min(100, Math.max(0, parseInt(val) || 0));
+  try {
+    await api('PUT', '/progress/' + encodeURIComponent(key), { percentage: pct, subject, topicName });
+    allProgress[key] = pct;
+    renderProgress();
+    renderSyllabus();
+    renderSubjectProgress([]);
+    showToast('Progress updated!');
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ─── MOCKS ───
+async function loadMocks() {
+  try {
+    const data = await api('GET', '/mocks');
+    allMocks = data.mocks || [];
+    renderMocks();
+  } catch (e) { showToast('Failed to load mocks', true); }
+}
+
+function renderMocks() {
+  const el = document.getElementById('mock-body');
+  if (!allMocks.length) { el.innerHTML = '<div class="empty-state" style="padding:1.5rem">No mock tests logged yet. Add your first!</div>'; return; }
+  el.innerHTML = allMocks.map(m => {
+    const total = m.totalScore || ((+m.scores?.varc || 0) + (+m.scores?.dilr || 0) + (+m.scores?.qa || 0));
+    const pct = Math.round(total / 208 * 100);
+    const col = pct >= 85 ? 'var(--success)' : pct >= 65 ? 'var(--gold-d)' : 'var(--danger)';
+    return `<div class="mock-row">
+      <span style="font-size:.8rem">${fmtDate(m.date)}</span>
+      <span style="font-weight:500">${m.name}${m.attemptedBy ? ' <small style="opacity:.6">('+m.attemptedBy+')</small>' : ''}</span>
+      <span class="score-tag">${m.scores?.varc || 0}/72</span>
+      <span class="score-tag">${m.scores?.dilr || 0}/60</span>
+      <span class="score-tag">${m.scores?.qa || 0}/76</span>
+      <span class="score-tag" style="background:${col};color:#fff">${total}/208${m.percentile ? '<br><small>'+m.percentile+'%ile</small>' : ''}</span>
+      <button class="mock-del" onclick="deleteMock('${m._id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function openMockModal() { document.getElementById('m-date').value = today(); document.getElementById('mock-modal').classList.add('open'); }
+function closeMockModal() { document.getElementById('mock-modal').classList.remove('open'); }
+
+async function saveMock() {
+  const name = document.getElementById('m-name').value.trim();
+  const date = document.getElementById('m-date').value;
+  if (!name || !date) { showToast('Name and date required', true); return; }
+  try {
+    const data = await api('POST', '/mocks', {
+      name, date,
+      scores: { varc: +document.getElementById('m-varc').value || 0, dilr: +document.getElementById('m-dilr').value || 0, qa: +document.getElementById('m-qa').value || 0 },
+      percentile: +document.getElementById('m-pct').value || null,
+      notes: document.getElementById('m-notes').value,
+      attemptedBy: document.getElementById('m-by').value
+    });
+    allMocks.unshift(data.mock);
+    ['m-name','m-varc','m-dilr','m-qa','m-pct','m-notes'].forEach(id => document.getElementById(id).value = '');
+    closeMockModal();
+    renderMocks();
+    showToast('Mock test logged!');
+  } catch (e) { showToast(e.message, true); }
+}
+
+async function deleteMock(id) {
+  if (!confirm('Delete this mock result?')) return;
+  try {
+    await api('DELETE', '/mocks/' + id);
+    allMocks = allMocks.filter(m => m._id !== id);
+    renderMocks();
+    showToast('Deleted');
+  } catch (e) { showToast(e.message, true); }
+}
+
+// ─── BOOT ───
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('login-form').classList.contains('active')) doLogin();
+});
+initApp();
+</script>
+</body>
+</html>
