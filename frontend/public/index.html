@@ -414,6 +414,17 @@ async function login(event) {
     localStorage.setItem('cat_token', token);
     await bootApp();
   } catch (err) {
+    // If backend is not reachable (e.g. site hosted on GitHub Pages), fall back to demo mode
+    console.warn('Login failed:', err.message);
+    if (location.hostname.endsWith('github.io') || err.message === 'Failed to fetch') {
+      // Demo mode: create a temporary token and demo user
+      token = 'demo-token';
+      currentUser = { name: 'Demo User', targetPercentile: 99 };
+      localStorage.setItem('cat_token', token);
+      toast('Backend not reachable — using demo mode', true);
+      await bootApp();
+      return;
+    }
     showAuthError(err.message);
   }
 }
@@ -433,6 +444,15 @@ async function register(event) {
     localStorage.setItem('cat_token', token);
     await bootApp();
   } catch (err) {
+    console.warn('Register failed:', err.message);
+    if (location.hostname.endsWith('github.io') || err.message === 'Failed to fetch') {
+      token = 'demo-token';
+      currentUser = { name: document.getElementById('registerName').value.trim() || 'Demo User', targetPercentile: Number(document.getElementById('targetPercentile').value) || 99 };
+      localStorage.setItem('cat_token', token);
+      toast('Backend not reachable — using demo mode', true);
+      await bootApp();
+      return;
+    }
     showAuthError(err.message);
   }
 }
