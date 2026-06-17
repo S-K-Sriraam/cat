@@ -355,7 +355,8 @@ button { cursor: pointer; }
 <div id="toast" class="toast"></div>
 
 <script>
-const API = '/api';
+// Use configured backend URL. When deployed, this points to your backend's API.
+const API = 'https://www.catprep.com/api';
 let token = localStorage.getItem('cat_token') || '';
 let currentUser = null;
 let syllabus = [];
