@@ -8,7 +8,7 @@
     "dev": "cd backend && npm run dev",
     "install-backend": "cd backend && npm install",
     "setup": "cd backend && npm install && cp .env.example .env",
-    "deploy": "gh-pages -d frontend/public"
+    "deploy": "cd frontend && npm install && npm run build && npm run deploy"
   },
   "engines": {
     "node": ">=18.0.0"
