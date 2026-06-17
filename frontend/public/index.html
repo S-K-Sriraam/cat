@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAT Prep Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f8fb;
+  --panel: #ffffff;
+  --ink: #101828;
+  --muted: #667085;
+  --line: #d9e0ea;
+  --soft: #eef3f8;
+  --brand: #0f766e;
+  --brand-dark: #115e59;
+  --blue: #2563eb;
+  --purple: #7c3aed;
+  --orange: #ea580c;
+  --red: #dc2626;
+  --green: #16a34a;
+  --shadow: 0 16px 40px rgba(16, 24, 40, .08);
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+.hidden { display: none !important; }
+.auth-shell { min-height: 100vh; display: grid; grid-template-columns: 1.05fr .95fr; }
+.auth-hero { background: linear-gradient(135deg, #0f172a, #115e59); color: white; padding: 56px; display: flex; flex-direction: column; justify-content: space-between; }
+.auth-hero h1 { font-size: clamp(36px, 6vw, 72px); line-height: .98; margin: 0; letter-spacing: 0; max-width: 760px; }
+.auth-hero p { color: rgba(255,255,255,.76); max-width: 640px; font-size: 18px; line-height: 1.7; }
+.hero-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 32px; max-width: 760px; }
+.hero-chip { border: 1px solid rgba(255,255,255,.18); background: rgba(255,255,255,.08); border-radius: 8px; padding: 14px; }
+.hero-chip strong { display: block; font-size: 22px; }
+.hero-chip span { color: rgba(255,255,255,.7); font-size: 13px; }
+.auth-panel { display: flex; align-items: center; justify-content: center; padding: 32px; }
+.auth-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 28px; width: min(440px, 100%); }
+.brand { font-weight: 800; color: var(--brand); letter-spacing: 0; margin-bottom: 4px; }
+.subtle { color: var(--muted); font-size: 14px; line-height: 1.5; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--soft); padding: 4px; border-radius: 8px; margin: 24px 0; }
+.tab { border: 0; background: transparent; border-radius: 6px; padding: 10px; font-weight: 700; color: var(--muted); }
+.tab.active { background: white; color: var(--ink); box-shadow: 0 1px 4px rgba(16,24,40,.08); }
+.field { display: grid; gap: 7px; margin-bottom: 14px; }
+.field label { color: var(--muted); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.field input, .field select, .field textarea { border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; background: white; color: var(--ink); outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(15,118,110,.12); }
+.primary { border: 0; background: var(--brand); color: white; border-radius: 8px; padding: 11px 16px; font-weight: 800; }
+.primary:hover { background: var(--brand-dark); }
+.secondary { border: 1px solid var(--line); background: white; color: var(--ink); border-radius: 8px; padding: 10px 14px; font-weight: 700; }
+.danger { border: 0; background: #fee2e2; color: var(--red); border-radius: 8px; padding: 9px 12px; font-weight: 800; }
+.error { display: none; border: 1px solid #fecaca; background: #fef2f2; color: var(--red); padding: 10px 12px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
+.error.show { display: block; }
+.app { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+.sidebar { background: #111827; color: white; padding: 24px 18px; position: sticky; top: 0; height: 100vh; }
+.logo { color: white; font-weight: 900; font-size: 21px; margin-bottom: 4px; }
+.logo span { color: #5eead4; }
+.nav { display: grid; gap: 8px; margin-top: 30px; }
+.nav button { border: 0; background: transparent; color: rgba(255,255,255,.68); text-align: left; padding: 11px 12px; border-radius: 8px; font-weight: 700; }
+.nav button.active, .nav button:hover { background: rgba(255,255,255,.1); color: white; }
+.side-card { border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); border-radius: 8px; padding: 14px; margin-top: 28px; }
+.side-card strong { display: block; font-size: 22px; }
+.content { padding: 24px; max-width: 1480px; width: 100%; margin: 0 auto; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+.topbar h2 { margin: 0; font-size: 28px; letter-spacing: 0; }
+.user-line { color: var(--muted); font-size: 14px; }
+.grid { display: grid; gap: 16px; }
+.cards-4 { grid-template-columns: repeat(4, 1fr); }
+.cards-3 { grid-template-columns: repeat(3, 1fr); }
+.cols { grid-template-columns: 1.5fr .9fr; align-items: start; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.panel.pad { padding: 18px; }
+.stat { padding: 18px; }
+.stat small { color: var(--muted); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+.stat strong { display: block; font-size: 32px; margin-top: 8px; }
+.stat span { color: var(--muted); font-size: 13px; }
+.section { display: none; }
+.section.active { display: block; }
+.panel-title { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+.panel-title h3 { margin: 0; font-size: 16px; }
+.task-list { padding: 8px 18px 18px; }
+.task { display: grid; grid-template-columns: auto 1fr auto auto; gap: 10px; align-items: center; padding: 11px 0; border-bottom: 1px solid var(--soft); }
+.task:last-child { border-bottom: 0; }
+.check { width: 22px; height: 22px; border-radius: 7px; border: 2px solid var(--line); background: white; }
+.check.done { background: var(--green); border-color: var(--green); position: relative; }
+.check.done::after { content: ""; position: absolute; width: 9px; height: 5px; border-left: 2px solid white; border-bottom: 2px solid white; transform: rotate(-45deg); left: 5px; top: 5px; }
+.task-title { font-weight: 700; }
+.task-title.done { color: var(--muted); text-decoration: line-through; }
+.task-meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.badge { display: inline-flex; align-items: center; min-height: 24px; padding: 3px 8px; border-radius: 999px; font-weight: 800; font-size: 12px; }
+.badge.VARC { background: #ede9fe; color: var(--purple); }
+.badge.DILR { background: #ccfbf1; color: var(--brand-dark); }
+.badge.QA { background: #dbeafe; color: var(--blue); }
+.empty { color: var(--muted); padding: 24px; text-align: center; }
+.quick-form { display: grid; grid-template-columns: 1fr 120px 100px auto; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--line); background: #fbfcfe; }
+.quick-form input, .quick-form select { border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.priority-list { display: grid; gap: 10px; }
+.priority { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfe; }
+.rank { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; color: white; background: var(--brand); font-weight: 900; }
+.priority strong { display: block; font-size: 14px; }
+.priority span { color: var(--muted); font-size: 12px; }
+.weight { color: var(--orange); font-weight: 900; }
+.syllabus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.topic-card { padding: 16px; }
+.topic-head { display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 12px; }
+.topic-head h3 { margin: 0; }
+.topic-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; border-bottom: 1px solid var(--soft); padding: 9px 0; }
+.topic-row:last-child { border-bottom: 0; }
+.topic-row button { padding: 6px 8px; font-size: 12px; }
+.bar { height: 8px; background: var(--soft); border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--brand); border-radius: inherit; }
+.progress-row { display: grid; grid-template-columns: 220px 1fr 52px auto; gap: 12px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--soft); }
+.progress-row:last-child { border-bottom: 0; }
+.week-tools { display: flex; align-items: center; gap: 10px; }
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+.day { background: white; border: 1px solid var(--line); border-radius: 8px; min-height: 190px; overflow: hidden; }
+.day.today { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(15,118,110,.12); }
+.day-head { padding: 10px; background: #f1f5f9; border-bottom: 1px solid var(--line); font-weight: 900; display: flex; justify-content: space-between; }
+.day-body { padding: 8px; display: grid; gap: 6px; }
+.pill { border-radius: 7px; padding: 7px; font-size: 12px; line-height: 1.25; font-weight: 700; background: var(--soft); }
+.ai-layout { display: grid; grid-template-columns: 1fr 360px; gap: 16px; align-items: start; }
+.chat { height: 560px; display: grid; grid-template-rows: 1fr auto; overflow: hidden; }
+.messages { padding: 18px; overflow: auto; display: grid; align-content: start; gap: 12px; }
+.msg { max-width: 84%; padding: 12px 14px; border-radius: 8px; white-space: pre-wrap; line-height: 1.55; }
+.msg.user { justify-self: end; background: var(--brand); color: white; }
+.msg.bot { justify-self: start; background: var(--soft); color: var(--ink); }
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 14px; border-top: 1px solid var(--line); }
+.chat-form textarea { resize: none; min-height: 48px; border: 1px solid var(--line); border-radius: 8px; padding: 11px; }
+.mock-row { display: grid; grid-template-columns: 110px 1fr 80px 80px 80px 90px auto; gap: 10px; align-items: center; padding: 12px 18px; border-bottom: 1px solid var(--soft); }
+.modal { position: fixed; inset: 0; background: rgba(15,23,42,.54); display: none; align-items: center; justify-content: center; padding: 20px; z-index: 20; }
+.modal.open { display: flex; }
+.modal-card { width: min(500px, 100%); background: white; border-radius: 8px; padding: 20px; box-shadow: var(--shadow); }
+.modal-card h3 { margin-top: 0; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.toast { position: fixed; right: 20px; bottom: 20px; background: #111827; color: white; padding: 12px 16px; border-radius: 8px; box-shadow: var(--shadow); opacity: 0; transform: translateY(12px); transition: .2s; z-index: 30; }
+.toast.show { opacity: 1; transform: translateY(0); }
+@media (max-width: 1100px) {
+  .auth-shell, .app, .cols, .ai-layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .cards-4, .cards-3, .syllabus-grid { grid-template-columns: repeat(2, 1fr); }
+  .week-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 720px) {
+  .auth-hero { padding: 28px; }
+  .hero-grid, .cards-4, .cards-3, .syllabus-grid, .quick-form { grid-template-columns: 1fr; }
+  .content { padding: 14px; }
+  .topbar { align-items: start; flex-direction: column; }
+  .progress-row, .mock-row { grid-template-columns: 1fr; }
+  .task { grid-template-columns: auto 1fr auto; }
+  .task .danger { grid-column: 3; }
+}
+</style>
+</head>
+<body>
+<div id="authScreen" class="auth-shell">
+  <section class="auth-hero">
+    <div>
+      <div class="brand" style="color:#5eead4">CAT Prep Planner</div>
+      <h1>Plan every day around the topics that move your percentile.</h1>
+      <p>Built from your syllabus images: DILR, QA and VARC priorities, daily scheduling, progress tracking, MongoDB login, and an inbuilt AI study coach.</p>
+      <div class="hero-grid">
+        <div class="hero-chip"><strong>40-50%</strong><span>QA arithmetic block priority</span></div>
+        <div class="hero-chip"><strong>22+</strong><span>DILR practice sets focus</span></div>
+        <div class="hero-chip"><strong>Daily</strong><span>AI guided planner</span></div>
+      </div>
+    </div>
+    <p class="subtle" style="color:rgba(255,255,255,.7)">Your account, tasks, topic progress and mocks are stored per user in MongoDB.</p>
+  </section>
+  <section class="auth-panel">
+    <div class="auth-card">
+      <h2 style="margin:0">Welcome back</h2>
+      <p class="subtle">Login or create your prep account.</p>
+      <div class="tabs">
+        <button id="loginTab" class="tab active" onclick="switchAuth('login')">Login</button>
+        <button id="registerTab" class="tab" onclick="switchAuth('register')">Register</button>
+      </div>
+      <div id="authError" class="error"></div>
+      <form id="loginForm" onsubmit="login(event)">
+        <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
+        <button class="primary" style="width:100%">Login</button>
+      </form>
+      <form id="registerForm" class="hidden" onsubmit="register(event)">
+        <div class="field"><label>Name</label><input id="registerName" required></div>
+        <div class="field"><label>Email</label><input id="registerEmail" type="email" autocomplete="email" required></div>
+        <div class="field"><label>Password</label><input id="registerPassword" type="password" minlength="6" required></div>
+        <div class="field"><label>Target percentile</label><select id="targetPercentile"><option>99.5</option><option selected>99</option><option>98</option><option>95</option><option>90</option></select></div>
+        <div class="field"><label>CAT exam date</label><input id="examDate" type="date"></div>
+        <button class="primary" style="width:100%">Create account</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="logo"><span>CAT</span> Planner</div>
+    <div class="subtle" style="color:rgba(255,255,255,.62)">Daily prep command center</div>
+    <nav class="nav">
+      <button class="active" onclick="showSection('dashboard', this)">Dashboard</button>
+      <button onclick="showSection('planner', this)">Daily Planner</button>
+      <button onclick="showSection('syllabus', this)">Syllabus Weightage</button>
+      <button onclick="showSection('progress', this)">Progress</button>
+      <button onclick="showSection('assistant', this)">AI Coach</button>
+      <button onclick="showSection('mocks', this)">Mock Tests</button>
+    </nav>
+    <div class="side-card">
+      <span class="subtle" style="color:rgba(255,255,255,.65)">Current streak</span>
+      <strong id="streak">0 days</strong>
+    </div>
+    <button class="secondary" onclick="logout()" style="width:100%;margin-top:16px;background:rgba(255,255,255,.1);color:white;border-color:rgba(255,255,255,.16)">Logout</button>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <h2 id="pageTitle">Dashboard</h2>
+        <div id="userLine" class="user-line">Loading your planner...</div>
+      </div>
+      <button class="primary" onclick="planTopTopicToday()">Plan highest priority topic</button>
+    </header>
+
+    <section id="dashboard" class="section active">
+      <div class="grid cards-4">
+        <div class="panel stat"><small>Tasks today</small><strong id="statTasks">0</strong><span id="statDone">0 completed</span></div>
+        <div class="panel stat"><small>Study hours</small><strong id="statHours">0</strong><span>completed hours</span></div>
+        <div class="panel stat"><small>Mock tests</small><strong id="statMocks">0</strong><span id="statBest">Best score pending</span></div>
+        <div class="panel stat"><small>Next priority</small><strong id="statPriority" style="font-size:20px">-</strong><span>based on weightage</span></div>
+      </div>
+
+      <div class="grid cols" style="margin-top:16px">
+        <div class="panel">
+          <div class="panel-title"><h3>Today's Study Plan</h3><button class="secondary" onclick="openTaskModal(today())">Add task</button></div>
+          <div class="quick-form">
+            <input id="quickTitle" placeholder="Add a study task, e.g. DILR tables set">
+            <select id="quickSubject"><option>DILR</option><option>QA</option><option>VARC</option></select>
+            <input id="quickHours" type="number" min="0.5" max="12" step="0.5" value="1">
+            <button class="primary" onclick="quickAdd()">Add</button>
+          </div>
+          <div id="todayTasks" class="task-list"></div>
+        </div>
+
+        <div class="panel pad">
+          <h3 style="margin-top:0">What to study first</h3>
+          <div id="priorityList" class="priority-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="planner" class="section">
+      <div class="panel pad">
+        <div class="panel-title" style="padding:0 0 14px;border-bottom:0">
+          <h3>Weekly Planner</h3>
+          <div class="week-tools">
+            <button class="secondary" onclick="changeWeek(-1)">Previous</button>
+            <strong id="weekLabel"></strong>
+            <button class="secondary" onclick="changeWeek(1)">Next</button>
+          </div>
+        </div>
+        <div id="weekGrid" class="week-grid"></div>
+      </div>
+    </section>
+
+    <section id="syllabus" class="section">
+      <div class="panel pad" style="margin-bottom:16px">
+        <h3 style="margin-top:0">Weightage logic used by the planner</h3>
+        <p class="subtle">From your QA image: Block II Arithmetic has the highest priority at 40-50%, followed by Algebra 15-30%, Numbers 15-20%, Geometry 10-20%, and Counting 5-10%. DILR priorities emphasize tables, charts, caselets, arrangements, scheduling, tournaments, Venn diagrams and networks from your courseware images.</p>
+      </div>
+      <div id="syllabusGrid" class="syllabus-grid"></div>
+    </section>
+
+    <section id="progress" class="section">
+      <div class="panel">
+        <div class="panel-title"><h3>Topic Progress</h3><button class="secondary" onclick="loadAll()">Refresh</button></div>
+        <div id="progressRows"></div>
+      </div>
+    </section>
+
+    <section id="assistant" class="section">
+      <div class="ai-layout">
+        <div class="panel chat">
+          <div id="messages" class="messages"></div>
+          <form class="chat-form" onsubmit="sendAi(event)">
+            <textarea id="aiInput" placeholder="Ask: plan my day, prioritize topics, or paste a doubt"></textarea>
+            <button class="primary">Send</button>
+          </form>
+        </div>
+        <div class="panel pad">
+          <h3 style="margin-top:0">Fast prompts</h3>
+          <div class="grid">
+            <button class="secondary" onclick="usePrompt('Plan my study day based on my pending work and topic weightage.')">Plan my day</button>
+            <button class="secondary" onclick="usePrompt('Which CAT topics should I cover first and why?')">Prioritize topics</button>
+            <button class="secondary" onclick="usePrompt('Create a 2 hour study plan for today.')">2 hour plan</button>
+            <button class="secondary" onclick="usePrompt('How should I revise DILR caselets and tables?')">DILR revision</button>
+          </div>
+          <p class="subtle">If `OPENAI_API_KEY` is set on the backend, this chat uses the AI API. Without it, it still works as a local planner using your stored tasks and progress.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="mocks" class="section">
+      <div class="panel">
+        <div class="panel-title"><h3>Mock Test Log</h3><button class="secondary" onclick="openMockModal()">Add mock</button></div>
+        <div id="mockRows"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="taskModal" class="modal">
+  <div class="modal-card">
+    <h3 id="taskModalTitle">Add study task</h3>
+    <div class="field"><label>Task</label><input id="modalTaskTitle"></div>
+    <div class="field"><label>Subject</label><select id="modalSubject"><option>DILR</option><option>QA</option><option>VARC</option></select></div>
+    <div class="field"><label>Hours</label><input id="modalHours" type="number" min="0.5" max="12" step="0.5" value="1"></div>
+    <div class="modal-actions"><button class="secondary" onclick="closeTaskModal()">Cancel</button><button class="primary" onclick="saveModalTask()">Save</button></div>
+  </div>
+</div>
+
+<div id="mockModal" class="modal">
+  <div class="modal-card">
+    <h3>Add mock test</h3>
+    <div class="field"><label>Name</label><input id="mockName" placeholder="CAT 2024 Slot 1"></div>
+    <div class="field"><label>Date</label><input id="mockDate" type="date"></div>
+    <div class="grid cards-3">
+      <div class="field"><label>VARC</label><input id="mockVarc" type="number" min="0"></div>
+      <div class="field"><label>DILR</label><input id="mockDilr" type="number" min="0"></div>
+      <div class="field"><label>QA</label><input id="mockQa" type="number" min="0"></div>
+    </div>
+    <div class="field"><label>Percentile</label><input id="mockPercentile" type="number" min="0" max="100" step="0.01"></div>
+    <div class="field"><label>Notes</label><textarea id="mockNotes"></textarea></div>
+    <div class="modal-actions"><button class="secondary" onclick="closeMockModal()">Cancel</button><button class="primary" onclick="saveMock()">Save mock</button></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API = '/api';
+let token = localStorage.getItem('cat_token') || '';
+let currentUser = null;
+let syllabus = [];
+let progress = {};
+let todayTaskList = [];
+let weekOffset = 0;
+let taskModalDate = null;
+let recommendations = [];
+let mocks = [];
+
+function today() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function fmt(date) {
+  return new Date(date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+async function api(method, path, body) {
+  const options = { method, headers: { 'Content-Type': 'application/json' } };
+  if (token) options.headers.Authorization = 'Bearer ' + token;
+  if (body) options.body = JSON.stringify(body);
+  const res = await fetch(API + path, options);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function toast(message, isError = false) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.style.background = isError ? 'var(--red)' : '#111827';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+function showAuthError(message) {
+  const el = document.getElementById('authError');
+  el.textContent = message;
+  el.classList.add('show');
+}
+
+function switchAuth(mode) {
+  document.getElementById('loginTab').classList.toggle('active', mode === 'login');
+  document.getElementById('registerTab').classList.toggle('active', mode === 'register');
+  document.getElementById('loginForm').classList.toggle('hidden', mode !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', mode !== 'register');
+  document.getElementById('authError').classList.remove('show');
+}
+
+async function login(event) {
+  event.preventDefault();
+  try {
+    const data = await api('POST', '/auth/login', {
+      email: document.getElementById('loginEmail').value.trim(),
+      password: document.getElementById('loginPassword').value
+    });
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('cat_token', token);
+    await bootApp();
+  } catch (err) {
+    showAuthError(err.message);
+  }
+}
+
+async function register(event) {
+  event.preventDefault();
+  try {
+    const data = await api('POST', '/auth/register', {
+      name: document.getElementById('registerName').value.trim(),
+      email: document.getElementById('registerEmail').value.trim(),
+      password: document.getElementById('registerPassword').value,
+      targetPercentile: Number(document.getElementById('targetPercentile').value),
+      examDate: document.getElementById('examDate').value
+    });
+    token = data.token;
+    currentUser = data.user;
+    localStorage.setItem('cat_token', token);
+    await bootApp();
+  } catch (err) {
+    showAuthError(err.message);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('cat_token');
+  token = '';
+  currentUser = null;
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('authScreen').classList.remove('hidden');
+}
+
+async function bootApp() {
+  if (!token) return;
+  try {
+    if (!currentUser) currentUser = (await api('GET', '/auth/me')).user;
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    document.getElementById('userLine').textContent = `${currentUser.name} - Target ${currentUser.targetPercentile || 99}%ile`;
+    await loadAll();
+    addMessage('bot', 'I am ready. Ask me to plan your day, prioritize topics, or paste a doubt you want cleared.');
+  } catch (err) {
+    logout();
+  }
+}
+
+async function loadAll() {
+  const [syllabusData, progressData, recData, statsData, todayData, mockStats, mockData] = await Promise.all([
+    api('GET', '/ai/syllabus'),
+    api('GET', '/progress'),
+    api('GET', '/ai/recommendations'),
+    api('GET', '/tasks/stats/summary'),
+    api('GET', '/tasks?date=' + today()),
+    api('GET', '/mocks/stats/trend'),
+    api('GET', '/mocks')
+  ]);
+  syllabus = syllabusData.syllabus;
+  progress = {};
+  (progressData.progress || []).forEach(item => progress[item.topicKey] = item.percentage);
+  recommendations = recData.nextTopics || [];
+  todayTaskList = todayData.tasks || [];
+  mocks = mockData.mocks || [];
+  renderDashboard(statsData, mockStats);
+  renderSyllabus();
+  renderProgress();
+  renderPlanner();
+  renderMocks();
+}
+
+function showSection(id, button) {
+  document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav button').forEach(el => el.classList.remove('active'));
+  button.classList.add('active');
+  const titles = { dashboard: 'Dashboard', planner: 'Daily Planner', syllabus: 'Syllabus Weightage', progress: 'Progress', assistant: 'AI Coach', mocks: 'Mock Tests' };
+  document.getElementById('pageTitle').textContent = titles[id] || 'CAT Planner';
+  if (id === 'planner') renderPlanner();
+}
+
+function renderDashboard(stats, mockStats) {
+  document.getElementById('statTasks').textContent = stats.todayTasks || 0;
+  document.getElementById('statDone').textContent = `${stats.todayDone || 0} completed`;
+  document.getElementById('statHours').textContent = Number(stats.totalHours || 0).toFixed(1);
+  document.getElementById('statMocks').textContent = mockStats.count || 0;
+  document.getElementById('statBest').textContent = mockStats.best ? `Best: ${mockStats.best}` : 'Best score pending';
+  document.getElementById('streak').textContent = `${stats.streak || 0} days`;
+  document.getElementById('statPriority').textContent = recommendations[0]?.name || 'Start DILR';
+  renderTasks();
+  renderPriorities();
+}
+
+function renderTasks() {
+  const root = document.getElementById('todayTasks');
+  if (!todayTaskList.length) {
+    root.innerHTML = '<div class="empty">No tasks yet. Add your first task or let the planner choose one.</div>';
+    return;
+  }
+  root.innerHTML = todayTaskList.map(task => `
+    <div class="task">
+      <button class="check ${task.done ? 'done' : ''}" onclick="toggleTask('${task._id}', ${!task.done})" aria-label="Toggle task"></button>
+      <div>
+        <div class="task-title ${task.done ? 'done' : ''}">${escapeHtml(task.title)}</div>
+        <div class="task-meta">${task.hours || 1} hour(s)${task.topic ? ' - ' + escapeHtml(task.topic) : ''}</div>
+      </div>
+      <span class="badge ${task.subject}">${task.subject}</span>
+      <button class="danger" onclick="deleteTask('${task._id}')">Delete</button>
+    </div>
+  `).join('');
+}
+
+function renderPriorities() {
+  const root = document.getElementById('priorityList');
+  root.innerHTML = recommendations.slice(0, 6).map((topic, i) => `
+    <div class="priority">
+      <div class="rank">${i + 1}</div>
+      <div>
+        <strong>${escapeHtml(topic.name)}</strong>
+        <span>${topic.subject} - ${topic.progress || 0}% complete</span>
+      </div>
+      <div class="weight">${topic.weight}/10</div>
+    </div>
+  `).join('');
+}
+
+function renderSyllabus() {
+  const root = document.getElementById('syllabusGrid');
+  root.innerHTML = syllabus.map(section => `
+    <div class="panel topic-card">
+      <div class="topic-head">
+        <div>
+          <h3 style="color:${section.color}">${section.key}</h3>
+          <div class="subtle">${section.name}</div>
+          <div class="badge ${section.key}" style="margin-top:8px">${section.examWeight}</div>
+        </div>
+        <strong>#${section.priority}</strong>
+      </div>
+      ${section.topics.map(topic => {
+        const key = `${section.key}_${topic.name}`;
+        const pct = progress[key] || 0;
+        return `<div class="topic-row">
+          <div>
+            <strong style="font-size:13px">${escapeHtml(topic.name)}</strong>
+            <div class="subtle">Weight ${topic.weight}/10 - Priority ${topic.priority}</div>
+            <div class="bar" style="margin-top:7px"><span style="width:${pct}%;background:${section.color}"></span></div>
+          </div>
+          <button class="secondary" onclick="addTopicTask('${section.key}', '${escapeAttr(topic.name)}')">Plan</button>
+          <button class="secondary" onclick="setProgress('${section.key}', '${escapeAttr(topic.name)}')">${pct}%</button>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function renderProgress() {
+  const root = document.getElementById('progressRows');
+  const rows = syllabus.flatMap(section => section.topics.map(topic => ({ section, topic })));
+  root.innerHTML = rows.map(({ section, topic }) => {
+    const key = `${section.key}_${topic.name}`;
+    const pct = progress[key] || 0;
+    return `<div class="progress-row">
+      <div><span class="badge ${section.key}">${section.key}</span> <strong>${escapeHtml(topic.name)}</strong></div>
+      <div class="bar"><span style="width:${pct}%;background:${section.color}"></span></div>
+      <strong>${pct}%</strong>
+      <button class="secondary" onclick="setProgress('${section.key}', '${escapeAttr(topic.name)}')">Update</button>
+    </div>`;
+  }).join('');
+}
+
+function weekDates() {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1) + weekOffset * 7);
+  return Array.from({ length: 7 }, (_, i) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    return date.toISOString().slice(0, 10);
+  });
+}
+
+async function renderPlanner() {
+  const dates = weekDates();
+  document.getElementById('weekLabel').textContent = `${fmt(dates[0])} - ${fmt(dates[6])}`;
+  const data = await api('GET', `/tasks?from=${dates[0]}&to=${dates[6]}`);
+  const tasks = data.tasks || [];
+  const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  document.getElementById('weekGrid').innerHTML = dates.map((date, index) => {
+    const dayTasks = tasks.filter(task => task.date === date);
+    return `<div class="day ${date === today() ? 'today' : ''}">
+      <div class="day-head"><span>${names[index]}</span><span>${fmt(date)}</span></div>
+      <div class="day-body">
+        ${dayTasks.map(task => `<div class="pill ${task.subject}">${escapeHtml(task.title)}<br><span class="subtle">${task.subject} - ${task.hours || 1}h</span></div>`).join('') || '<div class="subtle">No tasks</div>'}
+        <button class="secondary" onclick="openTaskModal('${date}')">Add</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function changeWeek(delta) {
+  weekOffset += delta;
+  renderPlanner();
+}
+
+function renderMocks() {
+  const root = document.getElementById('mockRows');
+  if (!mocks.length) {
+    root.innerHTML = '<div class="empty">No mock tests logged yet.</div>';
+    return;
+  }
+  root.innerHTML = mocks.map(mock => `
+    <div class="mock-row">
+      <span>${fmt(mock.date)}</span>
+      <strong>${escapeHtml(mock.name)}</strong>
+      <span class="badge VARC">${mock.scores?.varc || 0}</span>
+      <span class="badge DILR">${mock.scores?.dilr || 0}</span>
+      <span class="badge QA">${mock.scores?.qa || 0}</span>
+      <strong>${mock.totalScore || 0}</strong>
+      <button class="danger" onclick="deleteMock('${mock._id}')">Delete</button>
+    </div>
+  `).join('');
+}
+
+async function quickAdd() {
+  const title = document.getElementById('quickTitle').value.trim();
+  if (!title) return;
+  await createTask({
+    title,
+    subject: document.getElementById('quickSubject').value,
+    hours: Number(document.getElementById('quickHours').value) || 1,
+    date: today()
+  });
+  document.getElementById('quickTitle').value = '';
+}
+
+async function createTask(payload) {
+  try {
+    await api('POST', '/tasks', payload);
+    toast('Task added');
+    await loadAll();
+  } catch (err) {
+    toast(err.message, true);
+  }
+}
+
+async function toggleTask(id, done) {
+  await api('PATCH', '/tasks/' + id, { done });
+  await loadAll();
+}
+
+async function deleteTask(id) {
+  await api('DELETE', '/tasks/' + id);
+  await loadAll();
+}
+
+function openTaskModal(date) {
+  taskModalDate = date;
+  document.getElementById('taskModalTitle').textContent = `Add task for ${fmt(date)}`;
+  document.getElementById('modalTaskTitle').value = '';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeTaskModal() {
+  document.getElementById('taskModal').classList.remove('open');
+}
+
+async function saveModalTask() {
+  const title = document.getElementById('modalTaskTitle').value.trim();
+  if (!title) return;
+  await createTask({
+    title,
+    subject: document.getElementById('modalSubject').value,
+    hours: Number(document.getElementById('modalHours').value) || 1,
+    date: taskModalDate || today()
+  });
+  closeTaskModal();
+}
+
+async function planTopTopicToday() {
+  const topic = recommendations[0];
+  if (!topic) return toast('No recommendation available yet', true);
+  await createTask({
+    title: `${topic.name}: concept + timed practice`,
+    subject: topic.subject,
+    topic: topic.name,
+    hours: 1.5,
+    date: today()
+  });
+}
+
+async function addTopicTask(subject, topic) {
+  await createTask({ title: `${topic}: practice session`, subject, topic, hours: 1, date: today() });
+}
+
+async function setProgress(subject, topic) {
+  const key = `${subject}_${topic}`;
+  const current = progress[key] || 0;
+  const value = prompt(`Completion percentage for ${topic}`, current);
+  if (value === null) return;
+  const percentage = Math.max(0, Math.min(100, Number(value) || 0));
+  await api('PUT', '/progress/' + encodeURIComponent(key), { subject, topicName: topic, percentage });
+  await loadAll();
+}
+
+function addMessage(role, text) {
+  const root = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  root.appendChild(div);
+  root.scrollTop = root.scrollHeight;
+}
+
+function usePrompt(text) {
+  document.getElementById('aiInput').value = text;
+  document.getElementById('aiInput').focus();
+}
+
+async function sendAi(event) {
+  event.preventDefault();
+  const input = document.getElementById('aiInput');
+  const message = input.value.trim();
+  if (!message) return;
+  addMessage('user', message);
+  input.value = '';
+  addMessage('bot', 'Thinking...');
+  const bot = document.querySelector('#messages .msg.bot:last-child');
+  try {
+    const data = await api('POST', '/ai/chat', { message });
+    bot.textContent = data.reply;
+  } catch (err) {
+    bot.textContent = err.message;
+  }
+}
+
+function openMockModal() {
+  document.getElementById('mockDate').value = today();
+  document.getElementById('mockModal').classList.add('open');
+}
+
+function closeMockModal() {
+  document.getElementById('mockModal').classList.remove('open');
+}
+
+async function saveMock() {
+  const name = document.getElementById('mockName').value.trim();
+  if (!name) return toast('Mock name required', true);
+  await api('POST', '/mocks', {
+    name,
+    date: document.getElementById('mockDate').value || today(),
+    scores: {
+      varc: Number(document.getElementById('mockVarc').value) || 0,
+      dilr: Number(document.getElementById('mockDilr').value) || 0,
+      qa: Number(document.getElementById('mockQa').value) || 0
+    },
+    percentile: Number(document.getElementById('mockPercentile').value) || undefined,
+    notes: document.getElementById('mockNotes').value
+  });
+  closeMockModal();
+  await loadAll();
+  toast('Mock saved');
+}
+
+async function deleteMock(id) {
+  await api('DELETE', '/mocks/' + id);
+  await loadAll();
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+}
+
+function escapeAttr(value) {
+  return String(value).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+bootApp();
+</script>
+</body>
+</html>
