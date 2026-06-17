@@ -12,13 +12,22 @@ const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
   'http://localhost:5000',
   'http://127.0.0.1:5000',
-  'http://localhost:3000'
+  'http://localhost:3000',
+  // Allow GitHub Pages preview and user pages for demo hosting
+  'https://S-K-Sriraam.github.io',
+  'https://S-K-Sriraam.github.io/cat-prep',
+  'https://S-K-Sriraam.github.io/cat'
 ];
 
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-    cb(new Error('Not allowed by CORS'));
+    // allow requests with no origin (e.g. curl, server-to-server)
+    if (!origin) return cb(null, true);
+    // allow if in allowed list
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    // allow if FRONTEND_URL env is a prefix of origin (useful for pages under the same domain)
+    if (process.env.FRONTEND_URL && origin.startsWith(process.env.FRONTEND_URL)) return cb(null, true);
+    cb(new Error('Not allowed by CORS: ' + origin));
   },
   credentials: true
 }));
