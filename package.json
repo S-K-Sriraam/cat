@@ -2,13 +2,18 @@
   "name": "cat-prep-tracker",
   "version": "1.0.0",
   "description": "CAT Exam Preparation Tracker - Full Stack Node.js + MongoDB",
+  "homepage": "https://S-K-Sriraam.github.io/cat",
   "scripts": {
     "start": "node backend/server.js",
     "dev": "cd backend && npm run dev",
     "install-backend": "cd backend && npm install",
-    "setup": "cd backend && npm install && cp .env.example .env"
+    "setup": "cd backend && npm install && cp .env.example .env",
+    "deploy": "gh-pages -d frontend/public"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }
