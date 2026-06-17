@@ -96,6 +96,41 @@ Open: **http://localhost:5000**
 
 ---
 
+## 🌍 Hosting The Full App
+
+This project is a full-stack Node.js app. Use Render or Railway for the real hosted site.
+GitHub Pages can only show static files and cannot run login, MongoDB, or AI routes.
+
+### Render Settings
+
+Create a new **Web Service** from this repo and use:
+
+```text
+Build Command: cd backend && npm install
+Start Command: node backend/server.js
+Health Check Path: /api/health
+```
+
+Add these environment variables in Render:
+
+```env
+MONGODB_URI=mongodb+srv://DB_USER:DB_PASSWORD@cluster0.xxxxx.mongodb.net/cat_prep_db?retryWrites=true&w=majority&appName=Cluster0
+JWT_SECRET=use_a_long_random_secret_32_chars_or_more
+NODE_ENV=production
+FRONTEND_URL=https://your-render-app-name.onrender.com
+OPENAI_MODEL=gpt-4o-mini
+```
+
+Optional, only if you want the AI coach to call OpenAI:
+
+```env
+OPENAI_API_KEY=your_openai_api_key
+```
+
+Make sure the MongoDB Atlas database user has the correct password and Atlas Network Access allows Render. For quick testing, allow `0.0.0.0/0`; for production, restrict access more tightly.
+
+---
+
 ## 🌐 Deployment Guide
 
 ### Option A: Railway (Recommended — Easiest)
