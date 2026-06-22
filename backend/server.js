@@ -10,14 +10,12 @@ const app = express();
 // ─── CORS ───
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3000',
+  process.env.GITHUB_PAGES_URL,
   'http://localhost:5000',
   'http://127.0.0.1:5000',
   'http://localhost:3000',
-  // Allow GitHub Pages preview and user pages for demo hosting
-  'https://S-K-Sriraam.github.io',
-  'https://S-K-Sriraam.github.io/cat-prep',
-  'https://S-K-Sriraam.github.io/cat'
-];
+  'https://s-k-sriraam.github.io'
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {

@@ -1,15 +1,3 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CAT Prep Tracker</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -190,10 +178,6 @@ button { cursor: pointer; }
         <button id="registerTab" class="tab" onclick="switchAuth('register')">Register</button>
       </div>
       <div id="authError" class="error"></div>
-      <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        <input id="demoToggle" type="checkbox" />
-        <label for="demoToggle" style="font-size:13px;color:var(--muted);margin:0">Use Demo mode (no backend)</label>
-      </div>
       <form id="loginForm" onsubmit="login(event)">
         <div class="field"><label>Email</label><input id="loginEmail" type="email" autocomplete="email" required></div>
         <div class="field"><label>Password</label><input id="loginPassword" type="password" autocomplete="current-password" required></div>
@@ -355,8 +339,13 @@ button { cursor: pointer; }
 <div id="toast" class="toast"></div>
 
 <script>
-// Use configured backend URL. When deployed, this points to your backend's API.
-const API = 'https://www.catprep.com/api';
+// If this file is served by Express/Render, same-origin "/api" is used.
+// If it is served from GitHub Pages, set CAT_API_BASE to your Render API URL.
+const API = window.CAT_API_BASE || (
+  location.hostname.endsWith('github.io')
+    ? 'https://cat-prep-tracker.onrender.com/api'
+    : '/api'
+);
 let token = localStorage.getItem('cat_token') || '';
 let currentUser = null;
 let syllabus = [];
@@ -409,15 +398,6 @@ function switchAuth(mode) {
 
 async function login(event) {
   event.preventDefault();
-  const demoMode = document.getElementById('demoToggle')?.checked;
-  if (demoMode) {
-    token = 'demo-token';
-    currentUser = { name: 'Demo User', targetPercentile: 99 };
-    localStorage.setItem('cat_token', token);
-    toast('Using Demo mode', false);
-    await bootApp();
-    return;
-  }
   try {
     const data = await api('POST', '/auth/login', {
       email: document.getElementById('loginEmail').value.trim(),
@@ -428,11 +408,10 @@ async function login(event) {
     localStorage.setItem('cat_token', token);
     await bootApp();
   } catch (err) {
-    // If backend is not reachable (e.g. site hosted on GitHub Pages), fall back to demo mode
     console.warn('Login failed:', err && err.message ? err.message : err);
     const isNetworkErr = err && (err.name === 'TypeError' || /failed to fetch|networkerror|network error/i.test(err.message || ''));
     if (isNetworkErr) {
-      showAuthError('Network error — backend unreachable. Toggle "Demo mode" to continue.');
+      showAuthError('Network error: backend is unreachable. Open the Render app URL or configure CAT_API_BASE to your backend API.');
       return;
     }
     showAuthError(err.message || String(err));
@@ -441,15 +420,6 @@ async function login(event) {
 
 async function register(event) {
   event.preventDefault();
-  const demoMode = document.getElementById('demoToggle')?.checked;
-  if (demoMode) {
-    token = 'demo-token';
-    currentUser = { name: document.getElementById('registerName').value.trim() || 'Demo User', targetPercentile: Number(document.getElementById('targetPercentile').value) || 99 };
-    localStorage.setItem('cat_token', token);
-    toast('Using Demo mode', false);
-    await bootApp();
-    return;
-  }
   try {
     const data = await api('POST', '/auth/register', {
       name: document.getElementById('registerName').value.trim(),
@@ -466,7 +436,7 @@ async function register(event) {
     console.warn('Register failed:', err && err.message ? err.message : err);
     const isNetworkErr = err && (err.name === 'TypeError' || /failed to fetch|networkerror|network error/i.test(err.message || ''));
     if (isNetworkErr) {
-      showAuthError('Network error — backend unreachable. Toggle "Demo mode" to continue.');
+      showAuthError('Network error: backend is unreachable. Open the Render app URL or configure CAT_API_BASE to your backend API.');
       return;
     }
     showAuthError(err.message || String(err));
