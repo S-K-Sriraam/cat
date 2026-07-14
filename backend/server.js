@@ -148,6 +148,15 @@ const envMongoURI = rawMongoURI && !isInvalidMongoURI(rawMongoURI)
   : generatedMongoURI || rawMongoURI;
 const invalidMongoURI = isInvalidMongoURI(envMongoURI);
 
+console.log('MongoDB config:', {
+  hasMongodbUri: Boolean(rawMongoURI),
+  hasMongodbUser: Boolean(atlasUser),
+  hasMongodbPassword: Boolean(atlasPassword),
+  mongodbHost: atlasHost,
+  mongodbDatabase: atlasDatabase,
+  usingGeneratedAtlasUri: Boolean(generatedMongoURI && (!rawMongoURI || isInvalidMongoURI(rawMongoURI)))
+});
+
 if (process.env.NODE_ENV === 'production' && invalidMongoURI) {
   throw new Error(
     'Set MONGODB_URI in Render to your full Atlas URI, or set MONGODB_USER and MONGODB_PASSWORD. The Atlas host must be cluster0.hibhiqq.mongodb.net.'
