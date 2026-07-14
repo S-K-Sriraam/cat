@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import '../styles/auth.css'
+import useAuth from '../hooks/useAuth'
 
 export default function Login() {
   const [mode, setMode] = useState('login')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const { login, register, loading, error, clearError } = useAuth()
   
   // Login form
   const [loginEmail, setLoginEmail] = useState('')
@@ -17,70 +16,41 @@ export default function Login() {
   const [targetPercentile, setTargetPercentile] = useState('99')
   const [examDate, setExamDate] = useState('')
 
-  const API = '/api'
-
   async function handleLogin(e) {
     e.preventDefault()
-    setError('')
-    setLoading(true)
+    clearError()
     
     try {
-      const res = await fetch(API + '/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          email: loginEmail.trim(),
-          password: loginPassword
-        })
-      })
-      
-      const data = await res.json()
-      
-      if (!res.ok) {
-        throw new Error(data.error || `Request failed (${res.status})`)
-      }
-      
-      localStorage.setItem('cat_token', data.token)
-      window.location.href = '/cat/'
+      const response = await login(loginEmail, loginPassword)
+      console.log('✅ Login successful:', response.user.name)
+      // Redirect after successful login
+      setTimeout(() => {
+        window.location.href = '/cat/'
+      }, 500)
     } catch (err) {
-      setError(err.message || 'Login failed. Please check your email and password.')
-    } finally {
-      setLoading(false)
+      console.error('❌ Login error:', err.message)
     }
   }
 
   async function handleRegister(e) {
     e.preventDefault()
-    setError('')
-    setLoading(true)
+    clearError()
     
     try {
-      const res = await fetch(API + '/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          name: registerName.trim(),
-          email: registerEmail.trim(),
-          password: registerPassword,
-          targetPercentile: Number(targetPercentile),
-          examDate: examDate
-        })
+      const response = await register({
+        name: registerName,
+        email: registerEmail,
+        password: registerPassword,
+        targetPercentile,
+        examDate
       })
-      
-      const data = await res.json()
-      
-      if (!res.ok) {
-        throw new Error(data.error || `Request failed (${res.status})`)
-      }
-      
-      localStorage.setItem('cat_token', data.token)
-      window.location.href = '/cat/'
+      console.log('✅ Registration successful:', response.user.name)
+      // Redirect after successful registration
+      setTimeout(() => {
+        window.location.href = '/cat/'
+      }, 500)
     } catch (err) {
-      setError(err.message || 'Registration failed. Please check your details and try again.')
-    } finally {
-      setLoading(false)
+      console.error('❌ Registration error:', err.message)
     }
   }
 
@@ -123,7 +93,7 @@ export default function Login() {
         <div style={{ width: '100%', maxWidth: '420px' }}>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
             <button
-              onClick={() => { setMode('login'); setError('') }}
+              onClick={() => { setMode('login'); clearError() }}
               style={{
                 flex: 1,
                 padding: '12px',
@@ -138,7 +108,7 @@ export default function Login() {
               Login
             </button>
             <button
-              onClick={() => { setMode('register'); setError('') }}
+              onClick={() => { setMode('register'); clearError() }}
               style={{
                 flex: 1,
                 padding: '12px',
