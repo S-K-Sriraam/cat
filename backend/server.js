@@ -96,7 +96,8 @@ app.use((err, req, res, next) => {
 // ─── MONGODB CONNECTION ───
 const defaultMongoURI = 'mongodb://localhost:27017/cat_prep_db';
 const envMongoURI = process.env.MONGODB_URI;
-const invalidAtlasPlaceholder = envMongoURI && /<(username|password)>|cluster0\.xxxxx|\.mongodb\.net/.test(envMongoURI);
+// Only treat obvious placeholder patterns as invalid (don't reject real mongodb.net URIs)
+const invalidAtlasPlaceholder = envMongoURI && /<(username|password)>|cluster0\.xxxxx/.test(envMongoURI);
 const MONGODB_URI = envMongoURI && !invalidAtlasPlaceholder ? envMongoURI : defaultMongoURI;
 
 if (!envMongoURI) {
