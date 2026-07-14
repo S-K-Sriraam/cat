@@ -1,20 +1,4 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-=======
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CAT Prep Tracker</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-</html>
-<!doctype html>
->>>>>>> be837b9 (Fix real-world auth flow)
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -1147,34 +1131,17 @@
       </div>
     </div>
 
-<<<<<<< HEAD
-<script>
-// If this file is served by Express/Render, same-origin "/api" is used.
-// If it is served from GitHub Pages, set CAT_API_BASE to your Render API URL.
-const API = window.CAT_API_BASE || (
-  location.hostname.endsWith('github.io')
-    ? 'https://cat-prep-tracker.onrender.com/api'
-    : '/api'
-);
-let token = localStorage.getItem('cat_token') || '';
-let currentUser = null;
-let syllabus = [];
-let progress = {};
-let todayTaskList = [];
-let weekOffset = 0;
-let taskModalDate = null;
-let recommendations = [];
-let mocks = [];
-=======
     <div id="toast" class="toast"></div>
->>>>>>> be837b9 (Fix real-world auth flow)
 
     <script>
       // Same-origin "/api" works when the Express server serves this page.
       // For GitHub Pages, set <meta name="api-base" content="https://your-backend.example.com/api">
       // or set window.CAT_API_BASE before this script.
       const apiBaseFromMeta = document.querySelector('meta[name="api-base"]')?.content;
-      const API = normalizeApiBase(window.CAT_API_BASE || apiBaseFromMeta || "/api");
+      const defaultApiBase = location.hostname.endsWith("github.io")
+        ? "https://cat-prep-tracker.onrender.com/api"
+        : "/api";
+      const API = normalizeApiBase(window.CAT_API_BASE || apiBaseFromMeta || defaultApiBase);
       let token = localStorage.getItem("cat_token") || "";
       let currentUser = null;
       let syllabus = [];
@@ -1239,54 +1206,6 @@ let mocks = [];
         setTimeout(() => el.classList.remove("show"), 2600);
       }
 
-<<<<<<< HEAD
-async function login(event) {
-  event.preventDefault();
-  try {
-    const data = await api('POST', '/auth/login', {
-      email: document.getElementById('loginEmail').value.trim(),
-      password: document.getElementById('loginPassword').value
-    });
-    token = data.token;
-    currentUser = data.user;
-    localStorage.setItem('cat_token', token);
-    await bootApp();
-  } catch (err) {
-    console.warn('Login failed:', err && err.message ? err.message : err);
-    const isNetworkErr = err && (err.name === 'TypeError' || /failed to fetch|networkerror|network error/i.test(err.message || ''));
-    if (isNetworkErr) {
-      showAuthError('Network error: backend is unreachable. Open the Render app URL or configure CAT_API_BASE to your backend API.');
-      return;
-    }
-    showAuthError(err.message || String(err));
-  }
-}
-
-async function register(event) {
-  event.preventDefault();
-  try {
-    const data = await api('POST', '/auth/register', {
-      name: document.getElementById('registerName').value.trim(),
-      email: document.getElementById('registerEmail').value.trim(),
-      password: document.getElementById('registerPassword').value,
-      targetPercentile: Number(document.getElementById('targetPercentile').value),
-      examDate: document.getElementById('examDate').value
-    });
-    token = data.token;
-    currentUser = data.user;
-    localStorage.setItem('cat_token', token);
-    await bootApp();
-  } catch (err) {
-    console.warn('Register failed:', err && err.message ? err.message : err);
-    const isNetworkErr = err && (err.name === 'TypeError' || /failed to fetch|networkerror|network error/i.test(err.message || ''));
-    if (isNetworkErr) {
-      showAuthError('Network error: backend is unreachable. Open the Render app URL or configure CAT_API_BASE to your backend API.');
-      return;
-    }
-    showAuthError(err.message || String(err));
-  }
-}
-=======
       function showAuthError(message) {
         const el = document.getElementById("authError");
         el.textContent = message;
@@ -1308,7 +1227,6 @@ async function register(event) {
           .classList.toggle("hidden", mode !== "register");
         document.getElementById("authError").classList.remove("show");
       }
->>>>>>> be837b9 (Fix real-world auth flow)
 
       async function login(event) {
         event.preventDefault();

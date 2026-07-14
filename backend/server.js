@@ -23,25 +23,11 @@ const allowedOrigins = [
   'http://localhost:5000',
   'http://127.0.0.1:5000',
   'http://localhost:3000',
-<<<<<<< HEAD
-  'https://s-k-sriraam.github.io'
-].filter(Boolean);
-
-app.use(cors({
-  origin: (origin, cb) => {
-    // allow requests with no origin (e.g. curl, server-to-server)
-    if (!origin) return cb(null, true);
-    // allow if in allowed list
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    // allow if FRONTEND_URL env is a prefix of origin (useful for pages under the same domain)
-    if (process.env.FRONTEND_URL && origin.startsWith(process.env.FRONTEND_URL)) return cb(null, true);
-    cb(new Error('Not allowed by CORS: ' + origin));
-=======
   'http://127.0.0.1:3000',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'https://s-k-sriraam.github.io'
-];
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -58,7 +44,6 @@ app.use(cors({
     // allow if FRONTEND_URL env matches
     if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return cb(null, true);
     cb(new Error('Not allowed by CORS'));
->>>>>>> be837b9 (Fix real-world auth flow)
   },
   credentials: true
 }));
