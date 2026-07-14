@@ -95,7 +95,30 @@ app.use((err, req, res, next) => {
 
 // ─── MONGODB CONNECTION ───
 const defaultMongoURI = 'mongodb://localhost:27017/cat_prep_db';
-const envMongoURI = process.env.MONGODB_URI && process.env.MONGODB_URI.trim();
+const getEnv = (...keys) => {
+  for (const key of keys) {
+    const value = process.env[key] && process.env[key].trim();
+    if (value) return value;
+  }
+  return '';
+};
+
+const atlasUser = getEnv('MONGODB_USER', 'MONGODB_USERNAME', 'MONGO_USER', 'MONGO_USERNAME', 'DB_USER');
+const atlasPassword = getEnv('MONGODB_PASSWORD', 'MONGO_PASSWORD', 'DB_PASSWORD');
+const atlasHost = getEnv('MONGODB_HOST', 'MONGO_HOST', 'ATLAS_CLUSTER_HOST') || 'cluster0.hibhiqq.mongodb.net';
+const atlasDatabase = getEnv('MONGODB_DATABASE', 'MONGO_DATABASE', 'DB_NAME') || 'cat_prep_db';
+const atlasAppName = getEnv('MONGODB_APP_NAME', 'MONGO_APP_NAME') || 'Cluster0';
+
+function buildAtlasURIFromParts() {
+  if (!atlasUser || !atlasPassword) return '';
+
+  const username = encodeURIComponent(atlasUser);
+  const password = encodeURIComponent(atlasPassword);
+  const database = encodeURIComponent(atlasDatabase);
+  const appName = encodeURIComponent(atlasAppName);
+
+  return `mongodb+srv://${username}:${password}@${atlasHost}/${database}?retryWrites=true&w=majority&appName=${appName}`;
+}
 
 function isInvalidMongoURI(uri) {
   if (!uri) return true;
@@ -118,11 +141,16 @@ function isInvalidMongoURI(uri) {
   }
 }
 
+const rawMongoURI = getEnv('MONGODB_URI');
+const generatedMongoURI = buildAtlasURIFromParts();
+const envMongoURI = rawMongoURI && !isInvalidMongoURI(rawMongoURI)
+  ? rawMongoURI
+  : generatedMongoURI || rawMongoURI;
 const invalidMongoURI = isInvalidMongoURI(envMongoURI);
 
 if (process.env.NODE_ENV === 'production' && invalidMongoURI) {
   throw new Error(
-    'MONGODB_URI must be set in Render with your real MongoDB Atlas URI, for example: mongodb+srv://USER:PASSWORD@cluster0.hibhiqq.mongodb.net/cat_prep_db?retryWrites=true&w=majority&appName=Cluster0'
+    'Set MONGODB_URI in Render to your full Atlas URI, or set MONGODB_USER and MONGODB_PASSWORD. The Atlas host must be cluster0.hibhiqq.mongodb.net.'
   );
 }
 
