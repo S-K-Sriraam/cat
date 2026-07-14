@@ -4,7 +4,12 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
-const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+const signToken = (id) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
+  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+};
 
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
@@ -26,6 +31,12 @@ router.post('/register', async (req, res) => {
     res.status(201).json({ token, user });
   } catch (err) {
     console.error('Register error:', err);
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Email already registered. Please login.' });
+    }
+    if (/JWT_SECRET/i.test(err.message || '')) {
+      return res.status(500).json({ error: 'Server auth is not configured. Set JWT_SECRET and restart the backend.' });
+    }
     res.status(500).json({ error: 'Registration failed. Please try again.' });
   }
 });
@@ -46,6 +57,9 @@ router.post('/login', async (req, res) => {
     res.json({ token, user });
   } catch (err) {
     console.error('Login error:', err);
+    if (/JWT_SECRET/i.test(err.message || '')) {
+      return res.status(500).json({ error: 'Server auth is not configured. Set JWT_SECRET and restart the backend.' });
+    }
     res.status(500).json({ error: 'Login failed. Please try again.' });
   }
 });

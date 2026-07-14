@@ -3,7 +3,16 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
+require('dotenv').config({ path: path.join(__dirname, '.env'), override: true });
+
+if (!process.env.JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('JWT_SECRET must be set in production.');
+  }
+  process.env.JWT_SECRET = 'local-dev-only-change-this-jwt-secret';
+  console.warn('JWT_SECRET is not set. Using a development-only fallback secret.');
+}
 
 const app = express();
 
@@ -14,6 +23,7 @@ const allowedOrigins = [
   'http://localhost:5000',
   'http://127.0.0.1:5000',
   'http://localhost:3000',
+<<<<<<< HEAD
   'https://s-k-sriraam.github.io'
 ].filter(Boolean);
 
@@ -26,6 +36,29 @@ app.use(cors({
     // allow if FRONTEND_URL env is a prefix of origin (useful for pages under the same domain)
     if (process.env.FRONTEND_URL && origin.startsWith(process.env.FRONTEND_URL)) return cb(null, true);
     cb(new Error('Not allowed by CORS: ' + origin));
+=======
+  'http://127.0.0.1:3000',
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://s-k-sriraam.github.io'
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    // allow explicit origins
+    if (allowedOrigins.includes(origin)) return cb(null, true);
+    // allow GitHub Pages origins (e.g. https://username.github.io)
+    try {
+      const host = new URL(origin).hostname;
+      if (host && host.endsWith('.github.io')) return cb(null, true);
+    } catch (e) {
+      // ignore URL parse errors
+    }
+    // allow if FRONTEND_URL env matches
+    if (process.env.FRONTEND_URL && origin === process.env.FRONTEND_URL) return cb(null, true);
+    cb(new Error('Not allowed by CORS'));
+>>>>>>> be837b9 (Fix real-world auth flow)
   },
   credentials: true
 }));
