@@ -3,18 +3,13 @@ const isDevelopment = import.meta.env.MODE === 'development';
 
 // Determine the API base URL based on environment
 const getAPIBaseURL = () => {
-  // Check if running on GitHub Pages
-  if (window.location.hostname.endsWith('github.io')) {
-    return 'https://cat-prep-tracker.onrender.com/api';
-  }
-  
   // In development, use the proxied /api endpoint
   if (isDevelopment) {
     return '/api';
   }
   
-  // In production, use relative API path
-  return '/api';
+  // In production (local), use localhost backend
+  return 'http://localhost:5000/api';
 };
 
 export const API_BASE_URL = getAPIBaseURL();
