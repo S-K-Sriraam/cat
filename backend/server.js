@@ -78,12 +78,47 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'cat-prep-tracker-api',
+    routes: [
+      'POST /api/auth/register',
+      'POST /api/auth/login',
+      'GET /api/auth/me',
+      'GET /api/health'
+    ]
+  });
+});
+
+app.use('/api', (req, res) => {
+  res.status(404).json({
+    error: 'API endpoint not found.',
+    method: req.method,
+    path: req.originalUrl,
+    availableAuthRoutes: [
+      'POST /api/auth/register',
+      'POST /api/auth/login',
+      'GET /api/auth/me'
+    ]
+  });
+});
+
 // ─── CATCH-ALL: serve frontend for any non-API route ───
 app.get('*', (req, res) => {
   if (!req.path.startsWith('/api')) {
     res.sendFile(path.join(frontendStaticPath, 'index.html'));
   } else {
-    res.status(404).json({ error: 'API endpoint not found.' });
+    res.status(404).json({
+      error: 'API endpoint not found.',
+      method: req.method,
+      path: req.originalUrl,
+      availableAuthRoutes: [
+        'POST /api/auth/register',
+        'POST /api/auth/login',
+        'GET /api/auth/me'
+      ]
+    });
   }
 });
 
