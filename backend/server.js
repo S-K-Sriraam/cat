@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 require('dotenv').config({ path: path.join(__dirname, '../.env') });
 require('dotenv').config({ path: path.join(__dirname, '.env'), override: true });
@@ -104,21 +105,37 @@ if (!envMongoURI) {
   console.warn('⚠️  MONGODB_URI contains placeholder values. Falling back to local MongoDB.');
 }
 
-mongoose.connect(MONGODB_URI)
-  .then(() => {
+async function startServer(uri) {
+  try {
+    await mongoose.connect(uri);
     console.log('✅ MongoDB connected successfully');
-    const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`🚀 CAT Prep Tracker server running on port ${PORT}`);
-      console.log(`   API:      http://localhost:${PORT}/api`);
-      console.log(`   Frontend: http://localhost:${PORT}`);
-      console.log(`   Health:   http://localhost:${PORT}/api/health`);
-    });
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('❌ MongoDB connection failed:', err.message);
-    process.exit(1);
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('⚠️  Falling back to in-memory MongoDB for local development.');
+      const mongod = await MongoMemoryServer.create();
+      const memoryUri = mongod.getUri();
+      await mongoose.connect(memoryUri);
+      console.log('✅ In-memory MongoDB started successfully');
+    } else {
+      process.exit(1);
+    }
+  }
+
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 CAT Prep Tracker server running on port ${PORT}`);
+    console.log(`   API:      http://localhost:${PORT}/api`);
+    console.log(`   Frontend: http://localhost:${PORT}`);
+    console.log(`   Health:   http://localhost:${PORT}/api/health`);
   });
+}
+
+startServer(MONGODB_URI).catch(err => {
+  console.error('Startup failed:', err);
+  process.exit(1);
+});
 
 mongoose.connection.on('disconnected', () => console.warn('⚠️  MongoDB disconnected'));
 mongoose.connection.on('reconnected', () => console.log('✅ MongoDB reconnected'));
