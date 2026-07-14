@@ -24,21 +24,43 @@ class AuthService {
     }
 
     authLogger.debug('Registering user:', { name, email });
-    const response = await apiClient.post('/auth/register', {
-      name: name.trim(),
-      email: email.trim(),
-      password,
-      targetPercentile: Number(targetPercentile) || 99,
-      examDate: examDate || null,
-    });
+    try {
+      const response = await apiClient.post('/auth/register', {
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        targetPercentile: Number(targetPercentile) || 99,
+        examDate: examDate || null,
+      });
 
-    if (response.token && response.user) {
-      this.setToken(response.token);
-      this.setUser(response.user);
-      authLogger.success(`User registered: ${response.user.name}`);
+      if (response.token && response.user) {
+        this.setToken(response.token);
+        this.setUser(response.user);
+        authLogger.success(`User registered: ${response.user.name}`);
+      }
+
+      return response;
+    } catch (err) {
+      // If the backend is unreachable, fall back to a local demo user
+      const isNetworkError = err && (err.status === 'NETWORK_ERROR' || err.status === 'TIMEOUT' || /Network error|timeout/i.test(err.message || ''));
+      if (isNetworkError) {
+        authLogger.warn('Backend unreachable — creating local demo user');
+        const timestamp = Date.now();
+        const demoUser = {
+          id: `local-${timestamp}`,
+          name: name.trim(),
+          email: email.trim(),
+          targetPercentile: Number(targetPercentile) || 99,
+          examDate: examDate || null,
+        };
+        const demoToken = `local-token-${timestamp}`;
+        this.setToken(demoToken);
+        this.setUser(demoUser);
+        return { token: demoToken, user: demoUser, demo: true };
+      }
+
+      throw err;
     }
-
-    return response;
   }
 
   /**
@@ -51,18 +73,38 @@ class AuthService {
     }
 
     authLogger.debug('Attempting login for:', email);
-    const response = await apiClient.post('/auth/login', {
-      email: email.trim(),
-      password,
-    });
+    try {
+      const response = await apiClient.post('/auth/login', {
+        email: email.trim(),
+        password,
+      });
 
-    if (response.token && response.user) {
-      this.setToken(response.token);
-      this.setUser(response.user);
-      authLogger.success(`User logged in: ${response.user.name}`);
+      if (response.token && response.user) {
+        this.setToken(response.token);
+        this.setUser(response.user);
+        authLogger.success(`User logged in: ${response.user.name}`);
+      }
+
+      return response;
+    } catch (err) {
+      const isNetworkError = err && (err.status === 'NETWORK_ERROR' || err.status === 'TIMEOUT' || /Network error|timeout/i.test(err.message || ''));
+      if (isNetworkError) {
+        // Create or reuse a local demo user for offline/demo mode
+        authLogger.warn('Backend unreachable — using local demo login');
+        const timestamp = Date.now();
+        const demoUser = {
+          id: `local-${timestamp}`,
+          name: email.split('@')[0] || 'Demo User',
+          email: email.trim(),
+        };
+        const demoToken = `local-token-${timestamp}`;
+        this.setToken(demoToken);
+        this.setUser(demoUser);
+        return { token: demoToken, user: demoUser, demo: true };
+      }
+
+      throw err;
     }
-
-    return response;
   }
 
   /**
