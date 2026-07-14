@@ -95,15 +95,43 @@ app.use((err, req, res, next) => {
 
 // ─── MONGODB CONNECTION ───
 const defaultMongoURI = 'mongodb://localhost:27017/cat_prep_db';
-const envMongoURI = process.env.MONGODB_URI;
-// Only treat obvious placeholder patterns as invalid (don't reject real mongodb.net URIs)
-const invalidAtlasPlaceholder = envMongoURI && /<(username|password)>|cluster0\.xxxxx/.test(envMongoURI);
-const MONGODB_URI = envMongoURI && !invalidAtlasPlaceholder ? envMongoURI : defaultMongoURI;
+const envMongoURI = process.env.MONGODB_URI && process.env.MONGODB_URI.trim();
+
+function isInvalidMongoURI(uri) {
+  if (!uri) return true;
+
+  try {
+    const parsed = new URL(uri);
+    const protocolIsValid = parsed.protocol === 'mongodb:' || parsed.protocol === 'mongodb+srv:';
+    const hostname = parsed.hostname.toLowerCase();
+
+    return (
+      !protocolIsValid ||
+      uri.includes('<username>') ||
+      uri.includes('<password>') ||
+      hostname === 'cluster.mongodb.net' ||
+      hostname === 'cluster0.xxxxx.mongodb.net' ||
+      hostname.endsWith('.xxxxx.mongodb.net')
+    );
+  } catch (err) {
+    return true;
+  }
+}
+
+const invalidMongoURI = isInvalidMongoURI(envMongoURI);
+
+if (process.env.NODE_ENV === 'production' && invalidMongoURI) {
+  throw new Error(
+    'MONGODB_URI must be set in Render with your real MongoDB Atlas URI, for example: mongodb+srv://USER:PASSWORD@cluster0.hibhiqq.mongodb.net/cat_prep_db?retryWrites=true&w=majority&appName=Cluster0'
+  );
+}
+
+const MONGODB_URI = !invalidMongoURI ? envMongoURI : defaultMongoURI;
 
 if (!envMongoURI) {
   console.warn('⚠️  MONGODB_URI is not set. Falling back to local MongoDB.');
-} else if (invalidAtlasPlaceholder) {
-  console.warn('⚠️  MONGODB_URI contains placeholder values. Falling back to local MongoDB.');
+} else if (invalidMongoURI) {
+  console.warn('⚠️  MONGODB_URI is invalid or contains placeholder values. Falling back to local MongoDB.');
 }
 
 async function startServer(uri) {
