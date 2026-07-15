@@ -1,5 +1,6 @@
 // API Configuration
 const isDevelopment = import.meta.env.MODE === 'development';
+const RENDER_API_BASE_URL = 'https://cat-prep-tracker-mo52.onrender.com/api';
 
 // Determine the API base URL based on environment
 const getAPIBaseURL = () => {
@@ -7,9 +8,9 @@ const getAPIBaseURL = () => {
   if (isDevelopment) {
     return '/api';
   }
-  
-  // In production (local), use localhost backend
-  return 'http://localhost:5000/api';
+
+  // In production/GitHub Pages, call the deployed Render backend.
+  return RENDER_API_BASE_URL;
 };
 
 export const API_BASE_URL = getAPIBaseURL();
