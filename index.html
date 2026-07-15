@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CAT Prep Planner</title>
+<meta name="api-base" content="https://cat-prep-tracker-mo52.onrender.com/api">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -174,8 +175,8 @@ button { cursor: pointer; }
       <h2 style="margin:0">Welcome back</h2>
       <p class="subtle">Login or create your prep account.</p>
       <div class="tabs">
-        <button id="loginTab" class="tab active" onclick="switchAuth('login')">Login</button>
-        <button id="registerTab" class="tab" onclick="switchAuth('register')">Register</button>
+        <button type="button" id="loginTab" class="tab active" onclick="switchAuth('login')">Login</button>
+        <button type="button" id="registerTab" class="tab" onclick="switchAuth('register')">Register</button>
       </div>
       <div id="authError" class="error"></div>
       <form id="loginForm" onsubmit="login(event)">
@@ -340,12 +341,12 @@ button { cursor: pointer; }
 
 <script>
 // If this file is served by Express/Render, same-origin "/api" is used.
-// If it is served from GitHub Pages, set CAT_API_BASE to your Render API URL.
-const API = window.CAT_API_BASE || (
-  location.hostname.endsWith('github.io')
-    ? 'https://cat-prep-tracker.onrender.com/api'
-    : '/api'
-);
+// GitHub Pages must call the deployed Render backend.
+const apiBaseFromMeta = document.querySelector('meta[name="api-base"]')?.content;
+const renderApiBase = 'https://cat-prep-tracker-mo52.onrender.com/api';
+const API = normalizeApiBase(window.CAT_API_BASE || apiBaseFromMeta || (
+  location.hostname.endsWith('github.io') ? renderApiBase : '/api'
+));
 let token = localStorage.getItem('cat_token') || '';
 let currentUser = null;
 let syllabus = [];
@@ -368,10 +369,29 @@ async function api(method, path, body) {
   const options = { method, headers: { 'Content-Type': 'application/json' } };
   if (token) options.headers.Authorization = 'Bearer ' + token;
   if (body) options.body = JSON.stringify(body);
-  const res = await fetch(API + path, options);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || 'Request failed');
+  const url = API + path;
+  let res;
+  try {
+    res = await fetch(url, options);
+  } catch (err) {
+    throw new Error(`Network error reaching ${API}.`);
+  }
+  const text = await res.text().catch(() => '');
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (err) {
+    data = { raw: text };
+  }
+  if (!res.ok) {
+    throw new Error(data.error || data.message || `Request failed (${res.status}) at ${url}`);
+  }
   return data;
+}
+
+function normalizeApiBase(value) {
+  const base = String(value || '/api').trim() || '/api';
+  return base.replace(/\/+$/, '');
 }
 
 function toast(message, isError = false) {
