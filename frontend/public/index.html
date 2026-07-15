@@ -759,6 +759,7 @@
           <p class="subtle">Login or create your prep account.</p>
           <div class="tabs">
             <button
+              type="button"
               id="loginTab"
               class="tab active"
               onclick="switchAuth('login')"
@@ -766,6 +767,7 @@
               Login
             </button>
             <button
+              type="button"
               id="registerTab"
               class="tab"
               onclick="switchAuth('register')"
@@ -1141,11 +1143,7 @@
       const apiBaseFromMeta = document.querySelector('meta[name="api-base"]')?.content;
       const renderApiBase = "https://cat-prep-tracker-mo52.onrender.com/api";
       const defaultApiBase = location.hostname.endsWith("github.io")
-<<<<<<< HEAD
-        ? "https://cat-prep-tracker-mo52.onrender.com/api"
-=======
         ? renderApiBase
->>>>>>> fc1e745 (Fix login API and deploy to GitHub Pages)
         : "/api";
       const API = normalizeApiBase(window.CAT_API_BASE || apiBaseFromMeta || defaultApiBase);
       let token = localStorage.getItem("cat_token") || "";
